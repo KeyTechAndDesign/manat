@@ -1,0 +1,59 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "intent=authorize sends operation PRE_AUTH; description defaults to the merchant order id; metadata passes through",
+  "operation": "createPayment",
+  "input": {
+    "orderId": "A-1002",
+    "amount": {
+      "amount": 10000,
+      "currency": "AZN"
+    },
+    "returnUrl": "https://merchant.az/thanks",
+    "language": "en",
+    "intent": "authorize",
+    "metadata": {
+      "cartId": "77"
+    }
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://api.payriff.com/api/v3/orders",
+        "json": {
+          "amount": 100,
+          "currency": "AZN",
+          "language": "EN",
+          "operation": "PRE_AUTH",
+          "description": "Order A-1002",
+          "redirectUrl": "https://merchant.az/thanks",
+          "metadata": {
+            "cartId": "77"
+          }
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "code": "00000",
+          "message": "Operation performed successfully",
+          "route": "dashboard/main",
+          "internalMessage": null,
+          "responseId": "c1d4ea57b0b0d4fce846ea38ccebb7b3f",
+          "payload": {
+            "orderId": "13aecf94-c9cd-4965-97e5-87dffe35308d",
+            "sessionId": "13aecf94-c9cd-4965-97e5-87dffe353088d",
+            "paymentUrl": "https://sbpay.payriff.com/r/13aecf94-c9cd-4965-97e5-87dffe35308d",
+            "transactionId": 1152924
+          }
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "13aecf94-c9cd-4965-97e5-87dffe35308d"
+  }
+}

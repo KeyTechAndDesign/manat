@@ -1,0 +1,15 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "There is no documented void for an uncaptured pre-auth",
+  "operation": "cancel",
+  "input": {
+    "paymentId": "f3a9b8b4-2c1d-4c5e-9c61-7a2b4e91d210"
+  },
+  "http": [],
+  "expected": {
+    "error": "unsupported_operation"
+  }
+}

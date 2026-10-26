@@ -1,0 +1,31 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "A non-00000 code is a provider_error with Payriff's code",
+  "operation": "getStatus",
+  "input": {
+    "paymentId": "f3a9b8b4-2c1d-4c5e-9c61-7a2b4e91d210"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://api.payriff.com/api/v3/orders/f3a9b8b4-2c1d-4c5e-9c61-7a2b4e91d210"
+      },
+      "respond": {
+        "status": 401,
+        "json": {
+          "code": "14010",
+          "message": "Unauthorized request",
+          "internalMessage": null
+        }
+      }
+    }
+  ],
+  "expected": {
+    "error": "provider_error",
+    "providerCode": "14010"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "callbackUrl must be HTTPS",
+  "operation": "createPayment",
+  "input": {
+    "orderId": "A-1003",
+    "amount": {
+      "amount": 100,
+      "currency": "AZN"
+    },
+    "returnUrl": "https://merchant.az/thanks",
+    "callbackUrl": "http://merchant.az/cb"
+  },
+  "http": [],
+  "expected": {
+    "error": "invalid_request"
+  }
+}

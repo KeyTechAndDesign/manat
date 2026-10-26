@@ -6,6 +6,7 @@ import {Manat, isManatError} from '../src/index.js';
 import type {FetchLike, PaymentProvider, PaymentStatus} from '../src/index.js';
 import {KapitalBankProvider, mapKapitalStatus} from '../src/providers/kapitalbank.js';
 import {AzericardProvider, azericardMacSource} from '../src/providers/azericard.js';
+import {PayriffProvider, mapPayriffStatus} from '../src/providers/payriff.js';
 
 const VECTORS = join(dirname(fileURLToPath(import.meta.url)), '../../spec/vectors');
 
@@ -34,6 +35,10 @@ const PROVIDERS: Record<string, {create: Factory; mapStatus?: (input: never) => 
     },
     azericard: {
         create: (config, fetch) => new AzericardProvider(config, {fetch}),
+    },
+    payriff: {
+        create: (config, fetch) => new PayriffProvider(config, {fetch}),
+        mapStatus: (input: {paymentStatus: string}) => mapPayriffStatus(input.paymentStatus),
     },
 };
 

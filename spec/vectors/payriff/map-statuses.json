@@ -1,0 +1,146 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "Every payment-status enum value (plus PAID from the docs' examples and IN_REVIEW from the SDK) maps to a Manat status",
+  "operation": "mapStatus",
+  "cases": [
+    {
+      "input": {
+        "paymentStatus": "CREATED"
+      },
+      "expected": {
+        "status": "pending"
+      }
+    },
+    {
+      "input": {
+        "paymentStatus": "PENDING"
+      },
+      "expected": {
+        "status": "pending"
+      }
+    },
+    {
+      "input": {
+        "paymentStatus": "ACCEPTED"
+      },
+      "expected": {
+        "status": "pending"
+      }
+    },
+    {
+      "input": {
+        "paymentStatus": "IN_REVIEW"
+      },
+      "expected": {
+        "status": "pending"
+      }
+    },
+    {
+      "input": {
+        "paymentStatus": "APPROVED"
+      },
+      "expected": {
+        "status": "paid"
+      }
+    },
+    {
+      "input": {
+        "paymentStatus": "PAID"
+      },
+      "expected": {
+        "status": "paid"
+      }
+    },
+    {
+      "input": {
+        "paymentStatus": "PARTIAL"
+      },
+      "expected": {
+        "status": "paid"
+      }
+    },
+    {
+      "input": {
+        "paymentStatus": "CASH"
+      },
+      "expected": {
+        "status": "paid"
+      }
+    },
+    {
+      "input": {
+        "paymentStatus": "PREAUTH_APPROVED"
+      },
+      "expected": {
+        "status": "authorized"
+      }
+    },
+    {
+      "input": {
+        "paymentStatus": "REFUNDED"
+      },
+      "expected": {
+        "status": "refunded"
+      }
+    },
+    {
+      "input": {
+        "paymentStatus": "REFUND_IN_PROGRESS"
+      },
+      "expected": {
+        "status": "refunded"
+      }
+    },
+    {
+      "input": {
+        "paymentStatus": "PARTIAL_REFUND"
+      },
+      "expected": {
+        "status": "partially_refunded"
+      }
+    },
+    {
+      "input": {
+        "paymentStatus": "CANCELED"
+      },
+      "expected": {
+        "status": "cancelled"
+      }
+    },
+    {
+      "input": {
+        "paymentStatus": "EXPIRED"
+      },
+      "expected": {
+        "status": "cancelled"
+      }
+    },
+    {
+      "input": {
+        "paymentStatus": "REVERSE"
+      },
+      "expected": {
+        "status": "cancelled"
+      }
+    },
+    {
+      "input": {
+        "paymentStatus": "PREAUTH_EXPIRED"
+      },
+      "expected": {
+        "status": "cancelled"
+      }
+    },
+    {
+      "input": {
+        "paymentStatus": "DECLINED"
+      },
+      "expected": {
+        "status": "failed"
+      }
+    }
+  ]
+}

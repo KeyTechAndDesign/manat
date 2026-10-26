@@ -1,0 +1,16 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "A webhook without payload.orderId is rejected without calling the API",
+  "operation": "verifyCallback",
+  "input": {
+    "method": "POST",
+    "body": "{\"code\":\"00000\",\"payload\":{}}"
+  },
+  "http": [],
+  "expected": {
+    "error": "invalid_signature"
+  }
+}

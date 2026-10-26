@@ -164,8 +164,9 @@ not provider keys.
   opaque `providerRef` string on `PaymentEvent`; merchants store it and pass it back
   to `refund`/`capture`/`cancel` unchanged. Its format is adapter-internal but must be
   identical across languages (it is pinned by the vectors).
-- **Unsigned redirects** (Kapital Bank) are never trusted: `verifyCallback` re-reads
-  the payment from the provider's API.
+- **Unsigned callbacks** (Kapital Bank redirect, Payriff webhook) are never trusted:
+  `verifyCallback` only takes the payment id from them and re-reads the payment from
+  the provider's API.
 - **Partially signed callbacks** (Azericard signs AMOUNT, TERMINAL, APPROVAL, RRN,
   INT_REF but not ORDER or ACTION): an approval requires the signed APPROVAL code,
   and merchants should reject a `providerRef` they have already processed.

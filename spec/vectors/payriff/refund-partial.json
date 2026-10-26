@@ -1,0 +1,89 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "Partial refund: POST /api/v3/refund with the amount, then the order is re-read",
+  "operation": "refund",
+  "input": {
+    "paymentId": "f3a9b8b4-2c1d-4c5e-9c61-7a2b4e91d210",
+    "amount": {
+      "amount": 6000,
+      "currency": "AZN"
+    }
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://api.payriff.com/api/v3/refund",
+        "headers": {
+          "authorization": "test-secret-key"
+        },
+        "json": {
+          "orderId": "f3a9b8b4-2c1d-4c5e-9c61-7a2b4e91d210",
+          "refundReason": "Refund",
+          "amount": 60
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "code": "00000",
+          "message": "Operation performed successfully",
+          "route": "dashboard/main",
+          "internalMessage": null,
+          "responseId": "03c7047b600e425eb581aa0a59d4a177"
+        }
+      }
+    },
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://api.payriff.com/api/v3/orders/f3a9b8b4-2c1d-4c5e-9c61-7a2b4e91d210",
+        "headers": {
+          "authorization": "test-secret-key"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "code": "00000",
+          "message": "Operation performed successfully",
+          "route": "dashboard/main",
+          "internalMessage": null,
+          "responseId": "b617c1a4d0f3480f9a1e2c9a4c8f3b21",
+          "payload": {
+            "orderId": "f3a9b8b4-2c1d-4c5e-9c61-7a2b4e91d210",
+            "amount": 149.99,
+            "currencyType": "AZN",
+            "merchantName": "Example Merchant LLC",
+            "operationType": "PURCHASE",
+            "paymentStatus": "PARTIAL_REFUND",
+            "auto": false,
+            "createdDate": "2025-01-15T12:34:56Z",
+            "description": "Online purchase for order #INV-2025-0001",
+            "transactions": [
+              {
+                "uuid": "9b4f2e7c-5e13-4b07-9f28-5a7c4ab0f2e3",
+                "createdDate": "2025-01-15T12:35:10Z",
+                "status": "PARTIAL_REFUND",
+                "channel": "ACQUIRING_BANK",
+                "channelType": "ON_US",
+                "requestRrn": "123456789012",
+                "responseRrn": "112345678913",
+                "pan": "411111******1111",
+                "paymentWay": "DIRECT"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "f3a9b8b4-2c1d-4c5e-9c61-7a2b4e91d210",
+    "status": "partially_refunded",
+    "refundId": "03c7047b600e425eb581aa0a59d4a177"
+  }
+}

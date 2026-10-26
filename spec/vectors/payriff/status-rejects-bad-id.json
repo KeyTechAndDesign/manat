@@ -1,0 +1,15 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "Order ids are validated before they are put into the URL",
+  "operation": "getStatus",
+  "input": {
+    "paymentId": "../../admin"
+  },
+  "http": [],
+  "expected": {
+    "error": "invalid_request"
+  }
+}

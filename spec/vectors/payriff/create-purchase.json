@@ -1,0 +1,62 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "PURCHASE order: decimal amount, upper-case language, redirectUrl and callbackUrl, customer goes to paymentUrl",
+  "operation": "createPayment",
+  "input": {
+    "orderId": "A-1001",
+    "amount": {
+      "amount": 17805,
+      "currency": "AZN"
+    },
+    "description": "Payout processing fee",
+    "returnUrl": "https://merchant.az/thanks",
+    "callbackUrl": "https://merchant.az/api/v1/payment/callback"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://api.payriff.com/api/v3/orders",
+        "headers": {
+          "authorization": "test-secret-key"
+        },
+        "json": {
+          "amount": 178.05,
+          "currency": "AZN",
+          "language": "AZ",
+          "operation": "PURCHASE",
+          "description": "Payout processing fee",
+          "redirectUrl": "https://merchant.az/thanks",
+          "callbackUrl": "https://merchant.az/api/v1/payment/callback"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "code": "00000",
+          "message": "Operation performed successfully",
+          "route": "dashboard/main",
+          "internalMessage": null,
+          "responseId": "c1d4ea57b0b0d4fce846ea38ccebb7b3f",
+          "payload": {
+            "orderId": "13aecf94-c9cd-4965-97e5-87dffe35308d",
+            "sessionId": "13aecf94-c9cd-4965-97e5-87dffe353088d",
+            "paymentUrl": "https://sbpay.payriff.com/r/13aecf94-c9cd-4965-97e5-87dffe35308d",
+            "transactionId": 1152924
+          }
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "13aecf94-c9cd-4965-97e5-87dffe35308d",
+    "status": "pending",
+    "next": {
+      "type": "redirect",
+      "url": "https://sbpay.payriff.com/r/13aecf94-c9cd-4965-97e5-87dffe35308d"
+    }
+  }
+}

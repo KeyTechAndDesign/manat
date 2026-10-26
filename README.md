@@ -34,7 +34,7 @@ The shared interface and the cross-language test vectors live in [`spec/`](spec/
 |--------------|:-:|:-:|:-:|:-:|:-:|:-:|---|
 | Kapital Bank | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | REST + Basic auth; the redirect back is unsigned, so callbacks are confirmed through the API |
 | Azericard    | ✓ (form POST) | ✓ | ✓ | ✓ | ✓ | ✓ | RSA-signed CGI interface; store `event.providerRef` for refunds/captures |
-| Payriff      | planned | | | | | | |
+| Payriff      | ✓ | ✓ | ✓ | ✓ | ✓ | — | REST + secret key; the webhook is unsigned, so callbacks are confirmed through the API; no documented void for an uncaptured pre-auth |
 
 ### Checked against the providers' test environments (2026-10-26)
 
