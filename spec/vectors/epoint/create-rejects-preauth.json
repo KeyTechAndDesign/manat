@@ -1,0 +1,21 @@
+{
+  "provider": "epoint",
+  "description": "intent \"authorize\" is refused: Epoint status does not tell a hold from a captured payment",
+  "operation": "createPayment",
+  "config": {
+    "publicKey": "i000000001",
+    "privateKey": "d3hjsl38sd8kdfhbcea0be04eafde9e8e2bad2fb092d"
+  },
+  "input": {
+    "orderId": "A-1",
+    "amount": {
+      "amount": 100,
+      "currency": "AZN"
+    },
+    "returnUrl": "https://shop.example.az/return",
+    "intent": "authorize"
+  },
+  "expected": {
+    "error": "unsupported_operation"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "provider": "epoint",
+  "description": "data = base64(JSON), signature = base64(sha1(private_key + data + private_key)); first case is the example from the authentication docs",
+  "operation": "sign",
+  "config": {
+    "privateKey": "d3hjsl38sd8kdfhbcea0be04eafde9e8e2bad2fb092d"
+  },
+  "cases": [
+    {
+      "input": {
+        "json": "{\"public_key\":\"i000000001\",\"amount\":\"30.75\",\"currency\":\"AZN\",\"description\":\"test payment\",\"order_id\":\"1\"}"
+      },
+      "expected": {
+        "data": "eyJwdWJsaWNfa2V5IjoiaTAwMDAwMDAwMSIsImFtb3VudCI6IjMwLjc1IiwiY3VycmVuY3kiOiJBWk4iLCJkZXNjcmlwdGlvbiI6InRlc3QgcGF5bWVudCIsIm9yZGVyX2lkIjoiMSJ9",
+        "signature": "a76GNudqblZtV8qF199hctA+cG0="
+      }
+    },
+    {
+      "input": {
+        "json": "{\"description\":\"Sifariş №42 — ödəniş\"}"
+      },
+      "expected": {
+        "data": "eyJkZXNjcmlwdGlvbiI6IlNpZmFyacWfIOKEljQyIOKAlCDDtmTJmW5pxZ8ifQ==",
+        "signature": "VvmwU6RqE2EnD7KhRnbTps2pPtY="
+      }
+    }
+  ]
+}

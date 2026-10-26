@@ -35,6 +35,7 @@ The shared interface and the cross-language test vectors live in [`spec/`](spec/
 | Kapital Bank | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | REST + Basic auth; the redirect back is unsigned, so callbacks are confirmed through the API |
 | Azericard    | ✓ (form POST) | ✓ | ✓ | ✓ | ✓ | ✓ | RSA-signed CGI interface; store `event.providerRef` for refunds/captures |
 | Payriff      | ✓ | ✓ | ✓ | ✓ | ✓ | — | REST + secret key; the webhook is unsigned, so callbacks are confirmed through the API; no documented void for an uncaptured pre-auth |
+| Epoint       | ✓ | ✓ | ✓ | ✓ | — | — | Signed base64 JSON (`data` + `signature`); set the result URL in the Epoint panel; no pre-auth (see below) |
 
 ### Checked against the providers' test environments (2026-10-26)
 
@@ -54,13 +55,27 @@ Learned on the Azericard test gateway (not in the docs):
   only for the transaction type asked about; `-24` means "context mismatch", `-40` "form in progress".
 - Only one online reversal (TRTYPE 22) is accepted per transaction; later refunds must be offline (24).
 - The status response signature matches no documented field order, so `getStatus` relies on TLS.
-| Epoint       | planned | | | | | | |
+
+### Epoint (vectors only)
+
+Epoint has no public test environment, so the adapter is checked against the docs' own signed example, the
+request/response examples, and two community SDKs (rafoabbas/epoint-php, integrify/epoint). One live call was made
+with the docs' placeholder merchant: `get-status` answers HTTP 200 `{"status":"server_error","message":"Merchant not found"}`,
+which the adapter reports as a `provider_error`, not as a failed payment.
+
+- The callback is sent to the result URL configured in the Epoint merchant panel; `callbackUrl` is not sent.
+  The browser redirect back to `returnUrl` is not signed: use `getStatus` with the `paymentId` from `createPayment`.
+- Refunds use `/reverse` (full, or partial with an amount). `/refund-request` is a payout to a saved card and is not used.
+- Pre-auth is left out: the documented statuses have no value for a held but uncaptured payment, so a hold could not be told from a capture.
+- Neither the callback nor `get-status` names a currency, so `amount` is only in `raw.amount`.
 
 ```ts
-import {Manat, azericard, kapitalBank} from 'manat';
+import {Manat, azericard, epoint, kapitalBank, payriff} from 'manat';
 
 const kapital = new Manat(kapitalBank({username, password, environment: 'test'}));
 const azc = new Manat(azericard({terminal, privateKey, gatewayPublicKey, merchantName, merchantUrl, environment: 'test'}));
+const pr = new Manat(payriff({secretKey}));
+const ep = new Manat(epoint({publicKey, privateKey}));
 ```
 
 Not affiliated with any bank or payment provider. MIT licensed, provided without warranty: test against your provider's sandbox before going live.

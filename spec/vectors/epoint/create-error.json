@@ -1,0 +1,43 @@
+{
+  "provider": "epoint",
+  "description": "An error answer ({status: \"error\", message}) is a provider_error",
+  "operation": "createPayment",
+  "config": {
+    "publicKey": "i000000001",
+    "privateKey": "d3hjsl38sd8kdfhbcea0be04eafde9e8e2bad2fb092d"
+  },
+  "input": {
+    "orderId": "A-1",
+    "amount": {
+      "amount": 100,
+      "currency": "USD"
+    },
+    "returnUrl": "https://shop.example.az/return"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://epoint.az/api/1/request",
+        "headers": {
+          "content-type": "application/x-www-form-urlencoded"
+        },
+        "form": {
+          "data": "eyJwdWJsaWNfa2V5IjoiaTAwMDAwMDAwMSIsImFtb3VudCI6IjEuMDAiLCJjdXJyZW5jeSI6IlVTRCIsImxhbmd1YWdlIjoiYXoiLCJvcmRlcl9pZCI6IkEtMSIsInN1Y2Nlc3NfcmVkaXJlY3RfdXJsIjoiaHR0cHM6Ly9zaG9wLmV4YW1wbGUuYXovcmV0dXJuIiwiZXJyb3JfcmVkaXJlY3RfdXJsIjoiaHR0cHM6Ly9zaG9wLmV4YW1wbGUuYXovcmV0dXJuIn0=",
+          "signature": "4xeDCXt4XpBgO7g9a7tGhwUdW3g="
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "status": "error",
+          "message": "Error description",
+          "trace_id": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6"
+        }
+      }
+    }
+  ],
+  "expected": {
+    "error": "provider_error"
+  }
+}

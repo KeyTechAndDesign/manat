@@ -143,7 +143,8 @@ if the adapter sends anything else:
   `expected.status`) pin each adapter's status mapping without HTTP.
 - `operation: "macSource"` vectors (Azericard) pin how the length-prefixed MAC
   source string is built from `{fields, order}`.
-- `mapStatus` and `macSource` vectors hold a `cases` array instead of `input`/`expected`.
+- `operation: "sign"` vectors (Epoint) pin `{data, signature}` for a given JSON string.
+- `mapStatus`, `macSource` and `sign` vectors hold a `cases` array instead of `input`/`expected`.
 
 ### Config conventions in vectors
 
@@ -164,9 +165,13 @@ not provider keys.
   opaque `providerRef` string on `PaymentEvent`; merchants store it and pass it back
   to `refund`/`capture`/`cancel` unchanged. Its format is adapter-internal but must be
   identical across languages (it is pinned by the vectors).
-- **Unsigned callbacks** (Kapital Bank redirect, Payriff webhook) are never trusted:
+- **Unsigned callbacks** (Kapital Bank redirect, Payriff webhook, Epoint browser redirect) are never trusted:
   `verifyCallback` only takes the payment id from them and re-reads the payment from
   the provider's API.
+- **Signed JSON payloads** (Epoint): the request body is base64 of a JSON object, so every language must
+  produce the same bytes: compact JSON, keys in the order the vectors show, `/` and non-ASCII not escaped
+  (PHP `JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_LINE_TERMINATORS`, Python
+  `json.dumps(..., separators=(",", ":"), ensure_ascii=False)`), amounts as decimal strings.
 - **Partially signed callbacks** (Azericard signs AMOUNT, TERMINAL, APPROVAL, RRN,
   INT_REF but not ORDER or ACTION): an approval requires the signed APPROVAL code,
   and merchants should reject a `providerRef` they have already processed.

@@ -1,0 +1,20 @@
+{
+  "provider": "epoint",
+  "description": "Only AZN, USD, EUR and RUB are accepted for payments",
+  "operation": "createPayment",
+  "config": {
+    "publicKey": "i000000001",
+    "privateKey": "d3hjsl38sd8kdfhbcea0be04eafde9e8e2bad2fb092d"
+  },
+  "input": {
+    "orderId": "A-1",
+    "amount": {
+      "amount": 100,
+      "currency": "TRY"
+    },
+    "returnUrl": "https://shop.example.az/return"
+  },
+  "expected": {
+    "error": "invalid_request"
+  }
+}

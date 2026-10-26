@@ -1,0 +1,19 @@
+{
+  "provider": "epoint",
+  "description": "Signed with another private key",
+  "operation": "verifyCallback",
+  "config": {
+    "publicKey": "i000000001",
+    "privateKey": "d3hjsl38sd8kdfhbcea0be04eafde9e8e2bad2fb092d"
+  },
+  "input": {
+    "method": "POST",
+    "body": {
+      "data": "eyJvcmRlcl9pZCI6Im9yZGVyLTEyMyIsInN0YXR1cyI6InN1Y2Nlc3MiLCJjb2RlIjoiMDAwIiwibWVzc2FnZSI6IkFwcHJvdmVkIiwidHJhbnNhY3Rpb24iOiJ0ZV8wMDAwMDAwMDAxIiwiYmFua190cmFuc2FjdGlvbiI6IkJUMTIzNDUiLCJiYW5rX3Jlc3BvbnNlIjoiMDAwIiwib3BlcmF0aW9uX2NvZGUiOiIxMDAiLCJycm4iOiIxMjM0NTY3ODkwMTIiLCJjYXJkX25hbWUiOiJKb2huIERvZSIsImNhcmRfbWFzayI6IjEyMzQ1NioqKioqKjEyMzQiLCJhbW91bnQiOjMwLjc1LCJ0cmFjZV9pZCI6ImExYjJjM2Q0ZTVmNmE3YjhjOWQwZTFmMmEzYjRjNWQ2In0=",
+      "signature": "doCEj4xbJGouhU1JdZHwyDAJTFY="
+    }
+  },
+  "expected": {
+    "error": "invalid_signature"
+  }
+}

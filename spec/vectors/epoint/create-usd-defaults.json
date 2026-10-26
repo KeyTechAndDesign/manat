@@ -1,0 +1,45 @@
+{
+  "provider": "epoint",
+  "description": "Without description or language: no description field, language defaults to az; 100 minor units is \"1.00\"",
+  "operation": "createPayment",
+  "config": {
+    "publicKey": "i000000001",
+    "privateKey": "d3hjsl38sd8kdfhbcea0be04eafde9e8e2bad2fb092d"
+  },
+  "input": {
+    "orderId": "A-1",
+    "amount": {
+      "amount": 100,
+      "currency": "USD"
+    },
+    "returnUrl": "https://shop.example.az/return"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://epoint.az/api/1/request",
+        "headers": {
+          "content-type": "application/x-www-form-urlencoded"
+        },
+        "form": {
+          "data": "eyJwdWJsaWNfa2V5IjoiaTAwMDAwMDAwMSIsImFtb3VudCI6IjEuMDAiLCJjdXJyZW5jeSI6IlVTRCIsImxhbmd1YWdlIjoiYXoiLCJvcmRlcl9pZCI6IkEtMSIsInN1Y2Nlc3NfcmVkaXJlY3RfdXJsIjoiaHR0cHM6Ly9zaG9wLmV4YW1wbGUuYXovcmV0dXJuIiwiZXJyb3JfcmVkaXJlY3RfdXJsIjoiaHR0cHM6Ly9zaG9wLmV4YW1wbGUuYXovcmV0dXJuIn0=",
+          "signature": "4xeDCXt4XpBgO7g9a7tGhwUdW3g="
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "status": "success",
+          "redirect_url": "https://bank.gateway.url/...",
+          "transaction": "te_0000000002",
+          "trace_id": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6"
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "te_0000000002",
+    "status": "pending"
+  }
+}

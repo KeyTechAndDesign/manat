@@ -1,0 +1,24 @@
+{
+  "provider": "epoint",
+  "description": "A signed callback with status failed",
+  "operation": "verifyCallback",
+  "config": {
+    "publicKey": "i000000001",
+    "privateKey": "d3hjsl38sd8kdfhbcea0be04eafde9e8e2bad2fb092d"
+  },
+  "input": {
+    "method": "POST",
+    "body": {
+      "data": "eyJvcmRlcl9pZCI6Im9yZGVyLTEyMyIsInN0YXR1cyI6ImZhaWxlZCIsImNvZGUiOiIxMTYiLCJtZXNzYWdlIjoiRGVjbGluZSwgaW5zdWZmaWNpZW50IGZ1bmRzIiwidHJhbnNhY3Rpb24iOiJ0ZV8wMDAwMDAwMDAxIiwiYmFua190cmFuc2FjdGlvbiI6IkJUMTIzNDUiLCJiYW5rX3Jlc3BvbnNlIjoiMTE2Iiwib3BlcmF0aW9uX2NvZGUiOiIxMDAiLCJjYXJkX21hc2siOiIxMjM0NTYqKioqKioxMjM0IiwiYW1vdW50IjozMC43NSwidHJhY2VfaWQiOiJhMWIyYzNkNGU1ZjZhN2I4YzlkMGUxZjJhM2I0YzVkNiJ9",
+      "signature": "dz5DUFrbhFBlqjpfOlp6POsbSF8="
+    }
+  },
+  "expected": {
+    "paymentId": "te_0000000001",
+    "orderId": "order-123",
+    "status": "failed",
+    "raw": {
+      "code": "116"
+    }
+  }
+}

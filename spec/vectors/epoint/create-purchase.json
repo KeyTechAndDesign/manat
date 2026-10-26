@@ -1,0 +1,52 @@
+{
+  "provider": "epoint",
+  "description": "Signs the order as base64 JSON (amount as a decimal string, \"/\" and non-ASCII unescaped); callbackUrl is not sent because Epoint uses the result URL from the merchant panel",
+  "operation": "createPayment",
+  "config": {
+    "publicKey": "i000000001",
+    "privateKey": "d3hjsl38sd8kdfhbcea0be04eafde9e8e2bad2fb092d"
+  },
+  "input": {
+    "orderId": "order-123",
+    "amount": {
+      "amount": 3075,
+      "currency": "AZN"
+    },
+    "description": "Sifariş №123 / test",
+    "language": "en",
+    "returnUrl": "https://shop.example.az/payment/return?order=order-123",
+    "callbackUrl": "https://shop.example.az/epoint/callback"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://epoint.az/api/1/request",
+        "headers": {
+          "content-type": "application/x-www-form-urlencoded"
+        },
+        "form": {
+          "data": "eyJwdWJsaWNfa2V5IjoiaTAwMDAwMDAwMSIsImFtb3VudCI6IjMwLjc1IiwiY3VycmVuY3kiOiJBWk4iLCJsYW5ndWFnZSI6ImVuIiwib3JkZXJfaWQiOiJvcmRlci0xMjMiLCJkZXNjcmlwdGlvbiI6IlNpZmFyacWfIOKEljEyMyAvIHRlc3QiLCJzdWNjZXNzX3JlZGlyZWN0X3VybCI6Imh0dHBzOi8vc2hvcC5leGFtcGxlLmF6L3BheW1lbnQvcmV0dXJuP29yZGVyPW9yZGVyLTEyMyIsImVycm9yX3JlZGlyZWN0X3VybCI6Imh0dHBzOi8vc2hvcC5leGFtcGxlLmF6L3BheW1lbnQvcmV0dXJuP29yZGVyPW9yZGVyLTEyMyJ9",
+          "signature": "xX/EJR1On+pmenjMhwlQjGSTN8M="
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "status": "success",
+          "redirect_url": "https://bank.gateway.url/...",
+          "transaction": "te_0000000001",
+          "trace_id": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6"
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "te_0000000001",
+    "status": "pending",
+    "next": {
+      "type": "redirect",
+      "url": "https://bank.gateway.url/..."
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "provider": "epoint",
+  "description": "Partial refund through /reverse with an amount; a payment still reported as success was partly refunded",
+  "operation": "refund",
+  "config": {
+    "publicKey": "i000000001",
+    "privateKey": "d3hjsl38sd8kdfhbcea0be04eafde9e8e2bad2fb092d"
+  },
+  "input": {
+    "paymentId": "te_0000000001",
+    "amount": {
+      "amount": 1000,
+      "currency": "AZN"
+    }
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://epoint.az/api/1/reverse",
+        "headers": {
+          "content-type": "application/x-www-form-urlencoded"
+        },
+        "form": {
+          "data": "eyJwdWJsaWNfa2V5IjoiaTAwMDAwMDAwMSIsImxhbmd1YWdlIjoiYXoiLCJ0cmFuc2FjdGlvbiI6InRlXzAwMDAwMDAwMDEiLCJhbW91bnQiOiIxMC4wMCIsImN1cnJlbmN5IjoiQVpOIn0=",
+          "signature": "NWpKrhu2w9U2QWaPcHj8jihJtOA="
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "status": "success",
+          "trace_id": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6"
+        }
+      }
+    },
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://epoint.az/api/1/get-status",
+        "headers": {
+          "content-type": "application/x-www-form-urlencoded"
+        },
+        "form": {
+          "data": "eyJwdWJsaWNfa2V5IjoiaTAwMDAwMDAwMSIsInRyYW5zYWN0aW9uIjoidGVfMDAwMDAwMDAwMSJ9",
+          "signature": "0LoUfCw4HR6mmpmhxY6agCg6OJ8="
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "status": "success",
+          "code": "000",
+          "message": "Approved",
+          "transaction": "te_0000000001",
+          "bank_transaction": "BT12345",
+          "bank_response": "000",
+          "operation_code": "100",
+          "rrn": "123456789012",
+          "card_name": "John Doe",
+          "card_mask": "123456******1234",
+          "amount": 30.75,
+          "trace_id": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6"
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "te_0000000001",
+    "status": "partially_refunded"
+  }
+}

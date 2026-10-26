@@ -7,6 +7,7 @@ import type {FetchLike, PaymentProvider, PaymentStatus} from '../src/index.js';
 import {KapitalBankProvider, mapKapitalStatus} from '../src/providers/kapitalbank.js';
 import {AzericardProvider, azericardMacSource} from '../src/providers/azericard.js';
 import {PayriffProvider, mapPayriffStatus} from '../src/providers/payriff.js';
+import {EpointProvider, epointEncode, mapEpointStatus} from '../src/providers/epoint.js';
 
 const VECTORS = join(dirname(fileURLToPath(import.meta.url)), '../../spec/vectors');
 
@@ -22,7 +23,7 @@ interface Vector {
     config: Record<string, unknown>;
     input?: unknown;
     http?: HttpStep[];
-    cases?: {input: unknown; expected: {status?: PaymentStatus; source?: string}}[];
+    cases?: {input: unknown; expected: {status?: PaymentStatus; source?: string; data?: string; signature?: string}}[];
     expected?: Record<string, unknown>;
 }
 
@@ -39,6 +40,10 @@ const PROVIDERS: Record<string, {create: Factory; mapStatus?: (input: never) => 
     payriff: {
         create: (config, fetch) => new PayriffProvider(config, {fetch}),
         mapStatus: (input: {paymentStatus: string}) => mapPayriffStatus(input.paymentStatus),
+    },
+    epoint: {
+        create: (config, fetch) => new EpointProvider(config, {fetch}),
+        mapStatus: (input: {status: string}) => mapEpointStatus(input.status),
     },
 };
 
@@ -108,6 +113,15 @@ describe('shared test vectors', () => {
                 for (const testCase of vector.cases ?? []) {
                     const {fields, order} = testCase.input as {fields: Record<string, string>; order: string[]};
                     expect(azericardMacSource(fields, order)).toBe(testCase.expected.source);
+                }
+                return;
+            }
+
+            if (vector.operation === 'sign') {
+                const {privateKey} = vector.config as {privateKey: string};
+                for (const testCase of vector.cases ?? []) {
+                    const {json} = testCase.input as {json: string};
+                    expect(epointEncode(privateKey, json)).toEqual(testCase.expected);
                 }
                 return;
             }

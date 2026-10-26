@@ -1,0 +1,19 @@
+{
+  "provider": "epoint",
+  "description": "Empty data is rejected even though base64(sha1(key + \"\" + key)) would match",
+  "operation": "verifyCallback",
+  "config": {
+    "publicKey": "i000000001",
+    "privateKey": "d3hjsl38sd8kdfhbcea0be04eafde9e8e2bad2fb092d"
+  },
+  "input": {
+    "method": "POST",
+    "body": {
+      "data": "",
+      "signature": "APrvd67YjmJcuhoiU8d4cNTfCmA="
+    }
+  },
+  "expected": {
+    "error": "invalid_signature"
+  }
+}

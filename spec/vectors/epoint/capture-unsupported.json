@@ -1,0 +1,15 @@
+{
+  "provider": "epoint",
+  "description": "capture is not offered (pre-auth is left out)",
+  "operation": "capture",
+  "config": {
+    "publicKey": "i000000001",
+    "privateKey": "d3hjsl38sd8kdfhbcea0be04eafde9e8e2bad2fb092d"
+  },
+  "input": {
+    "paymentId": "te_0000000001"
+  },
+  "expected": {
+    "error": "unsupported_operation"
+  }
+}

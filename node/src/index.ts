@@ -10,3 +10,5 @@ export {azericard, AzericardProvider, AZERICARD_MAC_FIELDS} from './providers/az
 export type {AzericardConfig, AzericardMessage} from './providers/azericard.js';
 export {payriff, PayriffProvider} from './providers/payriff.js';
 export type {PayriffConfig} from './providers/payriff.js';
+export {epoint, EpointProvider} from './providers/epoint.js';
+export type {EpointConfig} from './providers/epoint.js';

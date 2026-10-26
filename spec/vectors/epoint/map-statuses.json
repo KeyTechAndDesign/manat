@@ -1,0 +1,51 @@
+{
+  "provider": "epoint",
+  "description": "Epoint payment statuses",
+  "operation": "mapStatus",
+  "config": {
+    "publicKey": "i000000001",
+    "privateKey": "d3hjsl38sd8kdfhbcea0be04eafde9e8e2bad2fb092d"
+  },
+  "cases": [
+    {
+      "input": {
+        "status": "new"
+      },
+      "expected": {
+        "status": "pending"
+      }
+    },
+    {
+      "input": {
+        "status": "success"
+      },
+      "expected": {
+        "status": "paid"
+      }
+    },
+    {
+      "input": {
+        "status": "returned"
+      },
+      "expected": {
+        "status": "refunded"
+      }
+    },
+    {
+      "input": {
+        "status": "failed"
+      },
+      "expected": {
+        "status": "failed"
+      }
+    },
+    {
+      "input": {
+        "status": "error"
+      },
+      "expected": {
+        "status": "failed"
+      }
+    }
+  ]
+}

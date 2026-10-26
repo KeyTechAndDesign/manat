@@ -1,0 +1,19 @@
+{
+  "provider": "epoint",
+  "description": "The browser redirect back to the shop carries nothing signed",
+  "operation": "verifyCallback",
+  "config": {
+    "publicKey": "i000000001",
+    "privateKey": "d3hjsl38sd8kdfhbcea0be04eafde9e8e2bad2fb092d"
+  },
+  "input": {
+    "method": "GET",
+    "query": {
+      "order_id": "order-123",
+      "status": "success"
+    }
+  },
+  "expected": {
+    "error": "invalid_signature"
+  }
+}

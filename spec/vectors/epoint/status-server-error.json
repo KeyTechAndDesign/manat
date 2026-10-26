@@ -1,0 +1,38 @@
+{
+  "provider": "epoint",
+  "description": "server_error means Epoint could not answer for this payment (here the live API's reply for an unknown merchant): an error, not a failed payment",
+  "operation": "getStatus",
+  "config": {
+    "publicKey": "i000000001",
+    "privateKey": "d3hjsl38sd8kdfhbcea0be04eafde9e8e2bad2fb092d"
+  },
+  "input": {
+    "paymentId": "te_0000000001"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://epoint.az/api/1/get-status",
+        "headers": {
+          "content-type": "application/x-www-form-urlencoded"
+        },
+        "form": {
+          "data": "eyJwdWJsaWNfa2V5IjoiaTAwMDAwMDAwMSIsInRyYW5zYWN0aW9uIjoidGVfMDAwMDAwMDAwMSJ9",
+          "signature": "0LoUfCw4HR6mmpmhxY6agCg6OJ8="
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "status": "server_error",
+          "message": "Merchant not found",
+          "trace_id": "1-6adf79ef-7cf585221495ec7c774140bb"
+        }
+      }
+    }
+  ],
+  "expected": {
+    "error": "provider_error"
+  }
+}
