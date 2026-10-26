@@ -1,0 +1,61 @@
+{
+  "provider": "kapitalbank",
+  "config": {
+    "username": "TerminalSys/test",
+    "password": "secret",
+    "environment": "test"
+  },
+  "description": "Purchase (Order_SMS): amount is sent as a decimal string and the customer is sent to hppUrl with id and password",
+  "operation": "createPayment",
+  "input": {
+    "orderId": "A-1001",
+    "amount": {
+      "amount": 100,
+      "currency": "AZN"
+    },
+    "description": "Testdesc",
+    "returnUrl": "https://shop.example/return"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://txpgtst.kapitalbank.az/api/order",
+        "headers": {
+          "authorization": "Basic VGVybWluYWxTeXMvdGVzdDpzZWNyZXQ="
+        },
+        "json": {
+          "order": {
+            "typeRid": "Order_SMS",
+            "amount": "1.00",
+            "currency": "AZN",
+            "language": "az",
+            "description": "Testdesc",
+            "hppRedirectUrl": "https://shop.example/return"
+          }
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "order": {
+            "id": 4595,
+            "hppUrl": "https://txpgtst.kapitalbank.az/flex",
+            "password": "8xjpd1ejxdma",
+            "status": "Preparing",
+            "cvv2AuthStatus": "Required",
+            "secret": "312866"
+          }
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "4595",
+    "status": "pending",
+    "next": {
+      "type": "redirect",
+      "url": "https://txpgtst.kapitalbank.az/flex?id=4595&password=8xjpd1ejxdma"
+    }
+  }
+}

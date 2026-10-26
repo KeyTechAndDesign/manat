@@ -1,0 +1,118 @@
+{
+  "provider": "kapitalbank",
+  "config": {
+    "username": "TerminalSys/test",
+    "password": "secret",
+    "environment": "test"
+  },
+  "description": "Every documented order status maps to a Manat status",
+  "operation": "mapStatus",
+  "cases": [
+    {
+      "input": {
+        "status": "Preparing"
+      },
+      "expected": {
+        "status": "pending"
+      }
+    },
+    {
+      "input": {
+        "status": "Authorized"
+      },
+      "expected": {
+        "status": "authorized"
+      }
+    },
+    {
+      "input": {
+        "status": "FullyPaid"
+      },
+      "expected": {
+        "status": "paid"
+      }
+    },
+    {
+      "input": {
+        "status": "PartPaid"
+      },
+      "expected": {
+        "status": "paid"
+      }
+    },
+    {
+      "input": {
+        "status": "Funded"
+      },
+      "expected": {
+        "status": "paid"
+      }
+    },
+    {
+      "input": {
+        "status": "Refunded"
+      },
+      "expected": {
+        "status": "refunded"
+      }
+    },
+    {
+      "input": {
+        "status": "Cancelled"
+      },
+      "expected": {
+        "status": "cancelled"
+      }
+    },
+    {
+      "input": {
+        "status": "Voided"
+      },
+      "expected": {
+        "status": "cancelled"
+      }
+    },
+    {
+      "input": {
+        "status": "Expired"
+      },
+      "expected": {
+        "status": "cancelled"
+      }
+    },
+    {
+      "input": {
+        "status": "Declined"
+      },
+      "expected": {
+        "status": "failed"
+      }
+    },
+    {
+      "input": {
+        "status": "Rejected"
+      },
+      "expected": {
+        "status": "failed"
+      }
+    },
+    {
+      "input": {
+        "status": "Refused"
+      },
+      "expected": {
+        "status": "failed"
+      }
+    },
+    {
+      "input": {
+        "status": "FullyPaid",
+        "clearedChargeAmount": 5,
+        "clearedRefundAmount": 2
+      },
+      "expected": {
+        "status": "partially_refunded"
+      }
+    }
+  ]
+}

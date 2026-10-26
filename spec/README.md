@@ -110,3 +110,34 @@ All errors are `ManatError` with a `code`:
 
 Vectors use only test credentials and values taken from, or reproducible with,
 the provider's public documentation. Every language runs every vector.
+
+### HTTP conversation vectors
+
+For operations that call the provider, a vector scripts the whole exchange.
+The runner serves the `http` steps in order from a fake HTTP client and fails
+if the adapter sends anything else:
+
+```json
+{
+  "description": "…",
+  "provider": "kapitalbank",
+  "operation": "createPayment | verifyCallback | getStatus | refund | capture | cancel",
+  "config": { "username": "TerminalSys/test", "password": "secret", "environment": "test" },
+  "input": { "…": "the operation's input, exactly as a merchant would pass it" },
+  "http": [
+    {
+      "expect": { "method": "POST", "url": "https://…", "headers": { "authorization": "Basic …" }, "json": { "…": "…" } },
+      "respond": { "status": 200, "json": { "…": "…" } }
+    }
+  ],
+  "expected": { "…": "subset of the result" }
+}
+```
+
+- `expect.url` must match exactly; `expect.headers` is a case-insensitive subset;
+  `expect.json` must deep-equal the parsed request body (or `expect.form` for
+  urlencoded bodies).
+- `expected` is matched as a subset, so `raw` can be left out. For failures use
+  `"expected": { "error": "provider_error", "providerCode": "…" }`.
+- `operation: "mapStatus"` vectors (`input` = provider status payload,
+  `expected.status`) pin each adapter's status mapping without HTTP.

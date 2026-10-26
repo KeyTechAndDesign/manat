@@ -1,0 +1,55 @@
+{
+  "provider": "kapitalbank",
+  "config": {
+    "username": "TerminalSys/test",
+    "password": "secret",
+    "environment": "test"
+  },
+  "description": "intent=authorize creates an Order_DMS (pre-authorisation) order; language and description defaults",
+  "operation": "createPayment",
+  "input": {
+    "orderId": "A-1002",
+    "amount": {
+      "amount": 2550,
+      "currency": "AZN"
+    },
+    "returnUrl": "https://shop.example/return",
+    "language": "en",
+    "intent": "authorize"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://txpgtst.kapitalbank.az/api/order",
+        "json": {
+          "order": {
+            "typeRid": "Order_DMS",
+            "amount": "25.50",
+            "currency": "AZN",
+            "language": "en",
+            "description": "A-1002",
+            "hppRedirectUrl": "https://shop.example/return"
+          }
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "order": {
+            "id": 4595,
+            "hppUrl": "https://txpgtst.kapitalbank.az/flex",
+            "password": "8xjpd1ejxdma",
+            "status": "Preparing",
+            "cvv2AuthStatus": "Required",
+            "secret": "312866"
+          }
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "4595",
+    "status": "pending"
+  }
+}

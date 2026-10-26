@@ -1,0 +1,53 @@
+{
+  "provider": "kapitalbank",
+  "config": {
+    "username": "TerminalSys/test",
+    "password": "secret",
+    "environment": "test"
+  },
+  "description": "Provider errors surface as provider_error with the bank's errorCode",
+  "operation": "refund",
+  "input": {
+    "paymentId": "10947",
+    "amount": {
+      "amount": 200,
+      "currency": "AZN"
+    }
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://txpgtst.kapitalbank.az/api/order/10947/exec-tran",
+        "headers": {
+          "authorization": "Basic VGVybWluYWxTeXMvdGVzdDpzZWNyZXQ="
+        },
+        "json": {
+          "tran": {
+            "phase": "Single",
+            "amount": "2.00",
+            "type": "Refund"
+          }
+        }
+      },
+      "respond": {
+        "status": 400,
+        "json": {
+          "errorCode": "PmoDecline",
+          "errorDescription": "Transaction declined by PMO: Auth Response: 52 - Card not found for MBR calculation. PAN=416974******1778, ExpDate from Track2 (YYMM)=2511",
+          "errorDetails": {
+            "declineReason": "SrcCardInvalid",
+            "match": {
+              "ridByPmo": "17947770"
+            },
+            "pmoResultCode": "52"
+          }
+        }
+      }
+    }
+  ],
+  "expected": {
+    "error": "provider_error",
+    "providerCode": "PmoDecline"
+  }
+}

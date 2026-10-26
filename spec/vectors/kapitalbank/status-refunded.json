@@ -1,0 +1,60 @@
+{
+  "provider": "kapitalbank",
+  "config": {
+    "username": "TerminalSys/test",
+    "password": "secret",
+    "environment": "test"
+  },
+  "description": "Order status Refunded maps to refunded and reports the refunded amount",
+  "operation": "getStatus",
+  "input": {
+    "paymentId": "5531"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://txpgtst.kapitalbank.az/api/order/5531?tranDetailLevel=2&tokenDetailLevel=2&orderDetailLevel=2",
+        "headers": {
+          "authorization": "Basic VGVybWluYWxTeXMvdGVzdDpzZWNyZXQ="
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "order": {
+            "id": 5531,
+            "hppUrl": "https://txpgtst.kapitalbank.az/flex",
+            "password": "1a06f5aj3yhqr",
+            "status": "Refunded",
+            "prevStatus": "FullyPaid",
+            "amount": 1,
+            "currency": "AZN",
+            "terminal": {
+              "id": 41,
+              "rid": "E1000010",
+              "title": "E1000010",
+              "mcc": 3011,
+              "status": "Active"
+            },
+            "authorizedChargeAmount": 1,
+            "clearedChargeAmount": 1,
+            "clearedRefundAmount": 1
+          }
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "5531",
+    "status": "refunded",
+    "amount": {
+      "amount": 100,
+      "currency": "AZN"
+    },
+    "refundedAmount": {
+      "amount": 100,
+      "currency": "AZN"
+    }
+  }
+}

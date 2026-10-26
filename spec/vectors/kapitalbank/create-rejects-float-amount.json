@@ -1,0 +1,22 @@
+{
+  "provider": "kapitalbank",
+  "config": {
+    "username": "TerminalSys/test",
+    "password": "secret",
+    "environment": "test"
+  },
+  "description": "Float amounts are rejected before any request is sent",
+  "operation": "createPayment",
+  "input": {
+    "orderId": "A-1003",
+    "amount": {
+      "amount": 25.5,
+      "currency": "AZN"
+    },
+    "returnUrl": "https://shop.example/return"
+  },
+  "http": [],
+  "expected": {
+    "error": "invalid_request"
+  }
+}

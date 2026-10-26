@@ -1,0 +1,55 @@
+{
+  "provider": "kapitalbank",
+  "config": {
+    "username": "TerminalSys/test",
+    "password": "secret",
+    "environment": "test"
+  },
+  "description": "STATUS in the unsigned redirect is never trusted: the API says Declined, so the event is failed",
+  "operation": "verifyCallback",
+  "input": {
+    "method": "GET",
+    "query": {
+      "ID": "10947",
+      "STATUS": "FullyPaid"
+    }
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://txpgtst.kapitalbank.az/api/order/10947?tranDetailLevel=2&tokenDetailLevel=2&orderDetailLevel=2",
+        "headers": {
+          "authorization": "Basic VGVybWluYWxTeXMvdGVzdDpzZWNyZXQ="
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "order": {
+            "id": 10947,
+            "hppUrl": "https://txpgtst.kapitalbank.az/flex",
+            "password": "mzvjai9qsj8x",
+            "status": "Declined",
+            "prevStatus": "Preparing",
+            "amount": 5,
+            "currency": "AZN",
+            "terminal": {
+              "id": 41,
+              "rid": "E1000010",
+              "title": "E1000010",
+              "mcc": 3011,
+              "status": "Active"
+            },
+            "authorizedChargeAmount": 5,
+            "clearedChargeAmount": 5
+          }
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "10947",
+    "status": "failed"
+  }
+}

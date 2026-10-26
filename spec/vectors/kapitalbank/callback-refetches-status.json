@@ -1,0 +1,59 @@
+{
+  "provider": "kapitalbank",
+  "config": {
+    "username": "TerminalSys/test",
+    "password": "secret",
+    "environment": "test"
+  },
+  "description": "The redirect's ID is used to re-read the order; the result comes from the API",
+  "operation": "verifyCallback",
+  "input": {
+    "method": "GET",
+    "query": {
+      "ID": "10947",
+      "STATUS": "FullyPaid"
+    }
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://txpgtst.kapitalbank.az/api/order/10947?tranDetailLevel=2&tokenDetailLevel=2&orderDetailLevel=2",
+        "headers": {
+          "authorization": "Basic VGVybWluYWxTeXMvdGVzdDpzZWNyZXQ="
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "order": {
+            "id": 10947,
+            "hppUrl": "https://txpgtst.kapitalbank.az/flex",
+            "password": "mzvjai9qsj8x",
+            "status": "FullyPaid",
+            "prevStatus": "Preparing",
+            "amount": 5,
+            "currency": "AZN",
+            "terminal": {
+              "id": 41,
+              "rid": "E1000010",
+              "title": "E1000010",
+              "mcc": 3011,
+              "status": "Active"
+            },
+            "authorizedChargeAmount": 5,
+            "clearedChargeAmount": 5
+          }
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "10947",
+    "status": "paid",
+    "amount": {
+      "amount": 500,
+      "currency": "AZN"
+    }
+  }
+}

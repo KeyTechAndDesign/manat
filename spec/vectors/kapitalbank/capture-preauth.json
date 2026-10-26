@@ -1,0 +1,83 @@
+{
+  "provider": "kapitalbank",
+  "config": {
+    "username": "TerminalSys/test",
+    "password": "secret",
+    "environment": "test"
+  },
+  "description": "Capture a pre-authorised order with phase Clearing",
+  "operation": "capture",
+  "input": {
+    "paymentId": "10947",
+    "amount": {
+      "amount": 500,
+      "currency": "AZN"
+    }
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://txpgtst.kapitalbank.az/api/order/10947/exec-tran",
+        "headers": {
+          "authorization": "Basic VGVybWluYWxTeXMvdGVzdDpzZWNyZXQ="
+        },
+        "json": {
+          "tran": {
+            "phase": "Clearing",
+            "amount": "5.00"
+          }
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "tran": {
+            "approvalCode": "053703",
+            "match": {
+              "tranActionId": "240422-13060545-000oed=",
+              "ridByPmo": "17302955"
+            },
+            "pmoResultCode": "1"
+          }
+        }
+      }
+    },
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://txpgtst.kapitalbank.az/api/order/10947?tranDetailLevel=2&tokenDetailLevel=2&orderDetailLevel=2",
+        "headers": {
+          "authorization": "Basic VGVybWluYWxTeXMvdGVzdDpzZWNyZXQ="
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "order": {
+            "id": 10947,
+            "hppUrl": "https://txpgtst.kapitalbank.az/flex",
+            "password": "mzvjai9qsj8x",
+            "status": "FullyPaid",
+            "prevStatus": "Preparing",
+            "amount": 5,
+            "currency": "AZN",
+            "terminal": {
+              "id": 41,
+              "rid": "E1000010",
+              "title": "E1000010",
+              "mcc": 3011,
+              "status": "Active"
+            },
+            "authorizedChargeAmount": 5,
+            "clearedChargeAmount": 5
+          }
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "10947",
+    "status": "paid"
+  }
+}
