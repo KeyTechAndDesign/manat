@@ -13,6 +13,10 @@
  *   present, and merchants should reject a providerRef (RRN + INT_REF) they have already seen.
  * - Completion (21) and reversals (22 online, 24 offline) are server-to-server form POSTs
  *   that answer with a bare ACTION code ("0" = approved).
+ * - The gateway delivers the result to BACKREF server-to-server (checked on the test gateway:
+ *   nothing is posted through the browser), so BACKREF must be reachable from the internet.
+ * - Status (TRTYPE 90) answers in JSON. Its `signature` does not match any documented field
+ *   order with the published test key, so getStatus relies on TLS to the gateway instead.
  */
 import {createPrivateKey, createPublicKey, randomBytes, sign, verify, type KeyObject} from 'node:crypto';
 import {ManatError} from '../errors.js';
@@ -34,7 +38,7 @@ import type {
     RefundResult,
 } from '../types.js';
 
-export type AzericardMessage = 'purchase' | 'completion' | 'reversal' | 'callback';
+export type AzericardMessage = 'purchase' | 'completion' | 'reversal' | 'callback' | 'status';
 
 export interface AzericardConfig {
     /** TERMINAL id assigned by the bank (8 characters). */
@@ -75,6 +79,7 @@ export const AZERICARD_MAC_FIELDS: Readonly<Record<AzericardMessage, readonly st
     completion: ['AMOUNT', 'CURRENCY', 'TERMINAL', 'TRTYPE', 'ORDER', 'RRN', 'INT_REF'],
     reversal: ['AMOUNT', 'CURRENCY', 'TERMINAL', 'TRTYPE', 'ORDER', 'RRN', 'INT_REF'],
     callback: ['AMOUNT', 'TERMINAL', 'APPROVAL', 'RRN', 'INT_REF'],
+    status: ['ORDER', 'TERMINAL', 'TRTYPE', 'TIMESTAMP', 'NONCE'],
 };
 
 const ACTION_MESSAGES: Record<string, string> = {
@@ -87,7 +92,7 @@ const ACTION_MESSAGES: Record<string, string> = {
     '8': 'Repeat of a transaction that terminated without a response',
 };
 
-const CAPABILITIES: ReadonlySet<Capability> = new Set(['createPayment', 'verifyCallback', 'refund', 'capture', 'cancel']);
+const CAPABILITIES: ReadonlySet<Capability> = new Set(['createPayment', 'verifyCallback', 'getStatus', 'refund', 'capture', 'cancel']);
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Length-prefixed MAC source: "11.48" → "511.48", empty → "-". Lengths are in bytes. */
@@ -200,6 +205,80 @@ export class AzericardProvider implements PaymentProvider {
         return event;
     }
 
+    /**
+     * TRTYPE 90. Works for 24 hours after the payment. The original TRTYPE is not known from the
+     * paymentId alone, so a purchase (1) is asked for first and a pre-auth (0) on "context mismatch".
+     * The answer only describes the transaction type asked about, so completion (21) and the
+     * reversals (22 online, 24 offline) are queried too. Only the latest offline reversal is
+     * visible this way, so refundedAmount can be lower than the truth after several 24s.
+     */
+    async getStatus({paymentId}: {paymentId: string}): Promise<PaymentState> {
+        if (!/^\d{6,32}$/.test(paymentId)) throw new ManatError('invalid_request', `azericard: paymentId must be the numeric ORDER, got "${paymentId}"`);
+        let trtype = '1';
+        let data = await this.queryStatus(paymentId, trtype);
+        if (data.responseCode === '-24') {
+            trtype = '0';
+            data = await this.queryStatus(paymentId, trtype);
+        }
+        let status = mapStatusResponse(data, trtype);
+        const amount = parseAmount(data.amount, data.currency);
+        const state: PaymentState = {paymentId, status, raw: {[trtype]: data}};
+        if (amount) state.amount = amount;
+        if ((status === 'paid' || status === 'authorized') && amount) {
+            const related = await this.relatedTransactions(paymentId, trtype === '0' ? ['21', '22', '24'] : ['22', '24']);
+            state.raw = {[trtype]: data, ...related.raw};
+            if (status === 'authorized' && related.approved.has('21')) status = 'paid';
+            const refunded = related.approvedAmount('22', amount.currency) + related.approvedAmount('24', amount.currency);
+            if (refunded > 0) {
+                state.refundedAmount = {amount: refunded, currency: amount.currency};
+                if (status === 'authorized') status = 'cancelled';
+                else status = refunded >= amount.amount ? 'refunded' : 'partially_refunded';
+            }
+            state.status = status;
+            const paidAt = data.tranDate ? bakuTimeToGmt(data.tranDate) : data.timestamp;
+            if (data.rrn && data.intRef && paidAt) {
+                state.providerRef = encodeRef({rrn: data.rrn, intRef: data.intRef, amount, timestamp: paidAt, trtype: related.approved.has('21') ? '21' : trtype});
+            }
+        }
+        return state;
+    }
+
+    private async relatedTransactions(order: string, types: string[]) {
+        const raw: Record<string, AzericardStatusResponse> = {};
+        const approved = new Map<string, AzericardStatusResponse>();
+        for (const type of types) {
+            const data = await this.queryStatus(order, type);
+            raw[type] = data;
+            if (data.actionCode === '0' && data.responseCode === '00') approved.set(type, data);
+        }
+        return {
+            raw,
+            approved,
+            approvedAmount(type: string, currency: Currency): number {
+                const entry = approved.get(type);
+                const money = entry ? parseAmount(entry.amount, entry.currency ?? currency) : undefined;
+                return money && money.currency === currency ? money.amount : 0;
+            },
+        };
+    }
+
+    private async queryStatus(order: string, tranTrtype: string): Promise<AzericardStatusResponse> {
+        const fields: Record<string, string> = {
+            TRAN_TRTYPE: tranTrtype,
+            ORDER: order,
+            TERMINAL: this.config.terminal,
+            TRTYPE: '90',
+            TIMESTAMP: azericardTimestamp(this.clock()),
+            NONCE: this.makeNonce(),
+        };
+        fields.P_SIGN = this.sign(fields, 'status');
+        const {status, data} = await this.http.json<AzericardStatusResponse>({method: 'POST', url: this.url, body: new URLSearchParams(fields)});
+        if (status >= 400 || !data || typeof data !== 'object') {
+            throw new ManatError('provider_error', `azericard: status request failed (HTTP ${status})`, {provider: this.name, raw: data});
+        }
+        return data;
+    }
+
     async capture(input: PaymentAction): Promise<PaymentState> {
         const ref = requireRef(input.providerRef);
         const amount = input.amount ?? ref.amount;
@@ -219,11 +298,16 @@ export class AzericardProvider implements PaymentProvider {
         if (amount.currency !== ref.amount.currency || amount.amount > ref.amount.amount) {
             throw new ManatError('invalid_request', 'azericard: refund amount exceeds the paid amount or uses another currency');
         }
-        // Online reversal (22) before settlement, offline reversal (24) after; settlement is daily.
+        // Online reversal (22) is only possible before settlement and only once per transaction
+        // (a second 22 fails with ACTION 3 on the gateway); everything else is an offline reversal (24).
         const paidAt = parseTimestamp(ref.timestamp);
-        const trtype = paidAt && this.clock().getTime() - paidAt.getTime() < DAY_MS ? '22' : '24';
+        let trtype = '24';
+        if (paidAt && this.clock().getTime() - paidAt.getTime() < DAY_MS) {
+            const online = await this.queryStatus(request.paymentId, '22');
+            trtype = online.actionCode === '0' && online.responseCode === '00' ? '24' : '22';
+        }
         const text = await this.send('reversal', trtype, request.paymentId, ref, amount);
-        return {paymentId: request.paymentId, status: amount.amount < ref.amount.amount ? 'partially_refunded' : 'refunded', raw: text};
+        return {paymentId: request.paymentId, status: amount.amount < ref.amount.amount ? 'partially_refunded' : 'refunded', raw: {trtype, action: text}};
     }
 
     private async send(message: AzericardMessage, trtype: string, order: string, ref: ProviderRef, amount: Money): Promise<string> {
@@ -259,6 +343,38 @@ export class AzericardProvider implements PaymentProvider {
 
 export function azericard(config: AzericardConfig, options?: HttpOptions): AzericardProvider {
     return new AzericardProvider(config, options);
+}
+
+/** TRTYPE 90 JSON, field names as returned by the test gateway. */
+export interface AzericardStatusResponse {
+    terminal?: string;
+    actionCode?: string;
+    responseCode?: string;
+    statusMsg?: string;
+    approval_id?: string;
+    card?: string;
+    amount?: string;
+    currency?: string;
+    tranDate?: string;
+    rrn?: string;
+    intRef?: string;
+    tr_type?: string;
+    nonce?: string;
+    timestamp?: string;
+    signature?: string;
+}
+
+export function mapStatusResponse(data: AzericardStatusResponse, tranTrtype: string): PaymentStatus {
+    if (data.actionCode === '0' && data.responseCode === '00') return tranTrtype === '0' ? 'authorized' : 'paid';
+    if (data.responseCode === '-40') return 'pending'; // "Client side transaction form in progress"
+    return 'failed';
+}
+
+/** "2026.10.26 19:06:40" in Baku time (UTC+4, no DST) → "20261026150640" GMT. */
+function bakuTimeToGmt(value: string): string | undefined {
+    const m = /^(\d{4})\.(\d{2})\.(\d{2}) (\d{2}):(\d{2}):(\d{2})$/.exec(value);
+    if (!m) return undefined;
+    return azericardTimestamp(new Date(Date.UTC(+m[1]!, +m[2]! - 1, +m[3]!, +m[4]! - 4, +m[5]!, +m[6]!)));
 }
 
 function statusForTrtype(trtype: string | undefined): PaymentStatus {

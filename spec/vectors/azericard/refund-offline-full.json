@@ -10,7 +10,7 @@
     "clock": "2026-10-28T09:00:00.000Z",
     "nonce": "a1b2c3d4e5f60718293a4b5c6d7e8f90"
   },
-  "description": "After 24h: offline reversal TRTYPE 24 for the full amount taken from providerRef",
+  "description": "After 24h: offline reversal TRTYPE 24 for the full amount taken from providerRef, no status check needed",
   "operation": "refund",
   "input": {
     "paymentId": "20261026000001",

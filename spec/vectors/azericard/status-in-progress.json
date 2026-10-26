@@ -1,0 +1,56 @@
+{
+  "provider": "azericard",
+  "config": {
+    "terminal": "17205356",
+    "privateKeyFile": "keys/merchant-private.pem",
+    "gatewayPublicKeyFile": "keys/gateway-public.pem",
+    "merchantName": "Test Shop",
+    "merchantUrl": "https://shop.example",
+    "environment": "test",
+    "clock": "2026-10-26T10:00:00.000Z",
+    "nonce": "a1b2c3d4e5f60718293a4b5c6d7e8f90"
+  },
+  "description": "Response code -40 (\"Client side transaction form in progress\") is pending",
+  "operation": "getStatus",
+  "input": {
+    "paymentId": "20261026000001"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://testmpi.3dsecure.az/cgi-bin/cgi_link",
+        "form": {
+          "TRAN_TRTYPE": "1",
+          "ORDER": "20261026000001",
+          "TERMINAL": "17205356",
+          "TRTYPE": "90",
+          "TIMESTAMP": "20261026100000",
+          "NONCE": "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+          "P_SIGN": "3f18b1fac676ef4cfd05b12b085e6a57a296962aedf39d82d4d36ff6548ee4fa5256cff7973090d8fc87471178cb464c4b7c4d633bff2696fdff00230c8e89f2c4155cfcc2cfac6cbcb7e4708f1381190c364e09ab51e8598b0ef89e9f2bdd4dcfbbc54d47dfff248863f51acc90345fc4fe4e643d962073e06a5a20f791513bec152d9718b34250b76fbd7a7e4e7f0a1ae10560947f32c72900207ec97636e05aa3af0a1f577875bb26ebadcbb5b8803f222fa5d10b0ed721fa05fd282fd0169d1cb04e1acf9146ac18190d7f6377562aa0589f31b4f5ee92b489c8a3341b7dff7bcc50c8cc87474b1f4038106954291efd8be6d7a2fa806931752e8292e6d1"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "terminal": "17205356",
+          "actionCode": "3",
+          "responseCode": "-40",
+          "statusMsg": "Client side transaction form in progress",
+          "amount": "11.48",
+          "currency": "AZN",
+          "nonce": "f0e1d2c3",
+          "signature": "ABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABAB",
+          "timestamp": "20261026100000"
+        }
+      }
+    }
+  ],
+  "expected": {
+    "status": "pending",
+    "amount": {
+      "amount": 1148,
+      "currency": "AZN"
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "provider": "azericard",
+  "config": {
+    "terminal": "17205356",
+    "privateKeyFile": "keys/merchant-private.pem",
+    "gatewayPublicKeyFile": "keys/gateway-public.pem",
+    "merchantName": "Test Shop",
+    "merchantUrl": "https://shop.example",
+    "environment": "test",
+    "clock": "2026-10-26T10:00:00.000Z",
+    "nonce": "a1b2c3d4e5f60718293a4b5c6d7e8f90"
+  },
+  "description": "Only one online reversal is allowed per transaction (a second 22 fails with ACTION 3), so a later refund uses TRTYPE 24 even within 24h",
+  "operation": "refund",
+  "input": {
+    "paymentId": "20261026000001",
+    "providerRef": "az1|317276406077|0A7E21C778330DF2|11.48|AZN|20261026100130|1",
+    "amount": {
+      "amount": 600,
+      "currency": "AZN"
+    }
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://testmpi.3dsecure.az/cgi-bin/cgi_link",
+        "form": {
+          "TRAN_TRTYPE": "22",
+          "ORDER": "20261026000001",
+          "TERMINAL": "17205356",
+          "TRTYPE": "90",
+          "TIMESTAMP": "20261026100000",
+          "NONCE": "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+          "P_SIGN": "3f18b1fac676ef4cfd05b12b085e6a57a296962aedf39d82d4d36ff6548ee4fa5256cff7973090d8fc87471178cb464c4b7c4d633bff2696fdff00230c8e89f2c4155cfcc2cfac6cbcb7e4708f1381190c364e09ab51e8598b0ef89e9f2bdd4dcfbbc54d47dfff248863f51acc90345fc4fe4e643d962073e06a5a20f791513bec152d9718b34250b76fbd7a7e4e7f0a1ae10560947f32c72900207ec97636e05aa3af0a1f577875bb26ebadcbb5b8803f222fa5d10b0ed721fa05fd282fd0169d1cb04e1acf9146ac18190d7f6377562aa0589f31b4f5ee92b489c8a3341b7dff7bcc50c8cc87474b1f4038106954291efd8be6d7a2fa806931752e8292e6d1"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "terminal": "17205356",
+          "actionCode": "0",
+          "approval_id": "123456",
+          "responseCode": "00",
+          "statusMsg": "Approved",
+          "card": "4127XXXXXXXX2601",
+          "amount": "5.00",
+          "currency": "AZN",
+          "tranDate": "2026.10.26 14:05:00",
+          "rrn": "317276406077",
+          "intRef": "0A7E21C778330DF2",
+          "nonce": "f0e1d2c3",
+          "signature": "ABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABABAB",
+          "timestamp": "20261026100000"
+        }
+      }
+    },
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://testmpi.3dsecure.az/cgi-bin/cgi_link",
+        "form": {
+          "AMOUNT": "6.00",
+          "CURRENCY": "AZN",
+          "ORDER": "20261026000001",
+          "RRN": "317276406077",
+          "INT_REF": "0A7E21C778330DF2",
+          "TERMINAL": "17205356",
+          "TRTYPE": "24",
+          "TIMESTAMP": "20261026100000",
+          "NONCE": "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+          "P_SIGN": "8be38cd097e6ad2dd47f29c7e35b187961f350eb2702647b30bd59a4192928ca01657fca7ac9679254265a0160ab66e2d41495a117d357832ad97df44abfcaed801f280719a55c66ac7ba152d43e336f039c28b334801be982cff063e5b575bef85ba0cfffa252a9446fb75208d76b2b17081f304b0f548770c48fa9d1616dcdd6deb36eb4b577718e46eeb7aa1cdd9f8546f9b711539c4cbcbbba374e8f85bc56b3e22778e0e957ca519413d624aff6ffa8b6c57b11ba66b2bb70ce01fcedfac43514027cbc0a2e3961f12ae3b8cd39fd547582f6dd2d4fee8213c0d4ebda02d4ee2c7e48c9768a639f670e0707f5cfc31dd84cef2d8345b1a4c5ba6aa438e0"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "text": "0"
+      }
+    }
+  ],
+  "expected": {
+    "status": "partially_refunded"
+  }
+}
