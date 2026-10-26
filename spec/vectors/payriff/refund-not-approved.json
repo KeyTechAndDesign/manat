@@ -1,0 +1,45 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "Refund of an unpaid order: Payriff test mode answers HTTP 400 with code 01000, and the order is not re-read",
+  "operation": "refund",
+  "input": {
+    "paymentId": "0a20931e-5e6b-474f-9e61-71a7efca3706",
+    "amount": {
+      "amount": 40,
+      "currency": "AZN"
+    }
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://api.payriff.com/api/v3/refund",
+        "headers": {
+          "authorization": "test-secret-key"
+        },
+        "json": {
+          "orderId": "0a20931e-5e6b-474f-9e61-71a7efca3706",
+          "refundReason": "Refund",
+          "amount": 0.4
+        }
+      },
+      "respond": {
+        "status": 400,
+        "json": {
+          "code": "01000",
+          "message": "Transaction status is not approved!.\n Support ticket: 315825",
+          "route": "dashboard/main",
+          "responseId": "791d422e03e4479ebcd1c4e3452500a0",
+          "responseDetails": null
+        }
+      }
+    }
+  ],
+  "expected": {
+    "error": "provider_error",
+    "providerCode": "01000"
+  }
+}

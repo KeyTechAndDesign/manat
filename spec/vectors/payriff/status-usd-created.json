@@ -1,0 +1,52 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "A new USD order as Payriff test mode returns it: amount 1.5 becomes 150 cents, metadata comes back as a string",
+  "operation": "getStatus",
+  "input": {
+    "paymentId": "9d3796bd-3105-4b43-97b2-466ad9986c71"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://api.payriff.com/api/v3/orders/9d3796bd-3105-4b43-97b2-466ad9986c71",
+        "headers": {
+          "authorization": "test-secret-key"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "code": "00000",
+          "message": "Operation performed successfully",
+          "route": "dashboard/main",
+          "responseId": "1381393b2aa142b0ae3781ae2ef41651",
+          "responseDetails": null,
+          "payload": {
+            "orderId": "9d3796bd-3105-4b43-97b2-466ad9986c71",
+            "amount": 1.5,
+            "currencyType": "USD",
+            "merchantName": "YeniBirja",
+            "operationType": "PURCHASE",
+            "paymentStatus": "CREATED",
+            "auto": false,
+            "createdDate": "2026-10-26T19:31:57.656103",
+            "description": "manat usd check",
+            "metadata": "{orderRef=A-1001}"
+          }
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "9d3796bd-3105-4b43-97b2-466ad9986c71",
+    "status": "pending",
+    "amount": {
+      "amount": 150,
+      "currency": "USD"
+    }
+  }
+}

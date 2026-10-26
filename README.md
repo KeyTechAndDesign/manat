@@ -49,9 +49,16 @@ The shared interface and the cross-language test vectors live in [`spec/`](spec/
   `verifyCallback` on a real gateway callback, because the result is posted server-to-server to BACKREF
   and the test machine was not reachable from the internet. Callback verification is covered by vectors.
 - **Payriff** (`api.payriff.com`, key of an application in "Development" status, which Payriff runs in test mode
-  only): order creation, the hosted payment page, `getStatus` (`CREATED` → `pending`, `amount: 1` → 100 qəpik)
-  and the error envelope for an unknown order (`01000`). Test-mode orders also get a `pay.payriff.com` link, not
-  the `sbpay.payriff.com` shown in the docs, and the page shows no test marking.
+  only): AZN and USD order creation (with `callbackUrl` and metadata), the hosted payment page, `getStatus`
+  (`CREATED` → `pending`, `amount: 1.5` USD → 150 cents), `verifyCallback` re-reading the order, and the errors for
+  an unknown order, a refund of an unpaid order and a capture of an unpaid pre-auth. Paid orders, refunds and
+  captures still need a test-card payment. Test-mode orders also get a `pay.payriff.com` link, not the
+  `sbpay.payriff.com` shown in the docs, and the page shows no test marking.
+
+Learned on Payriff test mode (not in the docs):
+- Code `01000` covers several errors ("Order info not found", "Transaction status is not approved",
+  "… not preauth-approved"); only the message tells them apart. Lookups answer HTTP 200, refund/capture HTTP 400.
+- Metadata comes back from `GET /orders/{id}` as one string (`"{orderRef=A-1001}"`), not as an object.
 
 Learned on the Azericard test gateway (not in the docs):
 - The payment result goes to BACKREF server-to-server; nothing is posted through the browser.
