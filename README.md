@@ -48,6 +48,10 @@ The shared interface and the cross-language test vectors live in [`spec/`](spec/
   partial refund, second refund, capture of a pre-auth and cancel of a pre-auth. Not tested live:
   `verifyCallback` on a real gateway callback, because the result is posted server-to-server to BACKREF
   and the test machine was not reachable from the internet. Callback verification is covered by vectors.
+- **Payriff** (`api.payriff.com`, key of an application in "Development" status, which Payriff runs in test mode
+  only): order creation, the hosted payment page, `getStatus` (`CREATED` → `pending`, `amount: 1` → 100 qəpik)
+  and the error envelope for an unknown order (`01000`). Test-mode orders also get a `pay.payriff.com` link, not
+  the `sbpay.payriff.com` shown in the docs, and the page shows no test marking.
 
 Learned on the Azericard test gateway (not in the docs):
 - The payment result goes to BACKREF server-to-server; nothing is posted through the browser.

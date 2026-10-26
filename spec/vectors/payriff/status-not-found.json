@@ -1,0 +1,36 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "Unknown order id: the envelope Payriff's live API returned (code 01000) is a provider_error",
+  "operation": "getStatus",
+  "input": {
+    "paymentId": "00000000-0000-4000-8000-000000000000"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://api.payriff.com/api/v3/orders/00000000-0000-4000-8000-000000000000",
+        "headers": {
+          "authorization": "test-secret-key"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "code": "01000",
+          "message": "Order info not found by uuid: 00000000-0000-4000-8000-000000000000.\n Support ticket: 808927",
+          "route": "dashboard/main",
+          "responseId": "3ac2cb5e1b7246548995912e30975424",
+          "responseDetails": null
+        }
+      }
+    }
+  ],
+  "expected": {
+    "error": "provider_error",
+    "providerCode": "01000"
+  }
+}
