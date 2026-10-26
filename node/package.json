@@ -1,0 +1,33 @@
+{
+  "name": "manat",
+  "version": "0.0.0",
+  "description": "One API for Azerbaijani online payment providers.",
+  "license": "MIT",
+  "author": "KeyTD <info@keytd.com>",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist"],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "keywords": ["azerbaijan", "payments", "azn", "manat", "payment-gateway", "azericard", "payriff", "kapital-bank"],
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
