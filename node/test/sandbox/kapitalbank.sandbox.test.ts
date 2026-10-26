@@ -14,9 +14,11 @@ const user = process.env.KAPITAL_TEST_USER;
 const password = process.env.KAPITAL_TEST_PASSWORD;
 
 describe.skipIf(!user || !password)('kapitalbank sandbox', () => {
-    const manat = new Manat(kapitalBank({username: user ?? '', password: password ?? '', environment: 'test'}));
+    // Built lazily: describe bodies run at collection time even when the suite is skipped.
+    const sandbox = () => new Manat(kapitalBank({username: user ?? '', password: password ?? '', environment: 'test'}));
 
     it('creates an order and returns a hosted page URL', async () => {
+        const manat = sandbox();
         const result = await manat.createPayment({
             orderId: `manat-${Date.now()}`,
             amount: azn('1.00'),
@@ -32,7 +34,7 @@ describe.skipIf(!user || !password)('kapitalbank sandbox', () => {
     });
 
     it.skipIf(!process.env.KAPITAL_TEST_ORDER)('reads the status of a paid test order', async () => {
-        const state = await manat.getStatus({paymentId: process.env.KAPITAL_TEST_ORDER ?? ''});
+        const state = await sandbox().getStatus({paymentId: process.env.KAPITAL_TEST_ORDER ?? ''});
         console.log(state.status, state.amount);
         expect(['paid', 'refunded', 'partially_refunded', 'authorized']).toContain(state.status);
     });
