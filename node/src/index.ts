@@ -6,3 +6,5 @@ export type {HttpOptions, FetchLike} from './http.js';
 export type * from './types.js';
 export {kapitalBank, KapitalBankProvider} from './providers/kapitalbank.js';
 export type {KapitalBankConfig} from './providers/kapitalbank.js';
+export {azericard, AzericardProvider, AZERICARD_MAC_FIELDS} from './providers/azericard.js';
+export type {AzericardConfig, AzericardMessage} from './providers/azericard.js';

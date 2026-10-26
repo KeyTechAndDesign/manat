@@ -1,0 +1,38 @@
+{
+  "provider": "azericard",
+  "config": {
+    "terminal": "17205356",
+    "privateKeyFile": "keys/merchant-private.pem",
+    "gatewayPublicKeyFile": "keys/gateway-public.pem",
+    "merchantName": "Test Shop",
+    "merchantUrl": "https://shop.example",
+    "environment": "test",
+    "clock": "2026-10-26T10:00:00.000Z",
+    "nonce": "a1b2c3d4e5f60718293a4b5c6d7e8f90"
+  },
+  "description": "Approved TRTYPE 0 is an authorization, not a payment",
+  "operation": "verifyCallback",
+  "input": {
+    "method": "POST",
+    "body": {
+      "TERMINAL": "17205356",
+      "TRTYPE": "0",
+      "ORDER": "20261026000001",
+      "AMOUNT": "11.48",
+      "CURRENCY": "944",
+      "ACTION": "0",
+      "RC": "00",
+      "APPROVAL": "123456",
+      "RRN": "317276406077",
+      "INT_REF": "0A7E21C778330DF2",
+      "TIMESTAMP": "20261026100130",
+      "NONCE": "f0e1d2c3b4a59687",
+      "P_SIGN": "6a7ae05bdddf2a5b98da8039f8af68e77555c4d1ef6f3466bccde837d10f9b4c841b80d8bfaec4e20527497c1225b7d24270f5301d0fcaa4206d3d88ca800580be63d4a47299b079c6360705c03f4e9b5651e5de7bfb54a1ba5de8cc9001feddc006b3b42cef3f20ce110cc1878b08541b5fb412dbf5175e47ac4902a4a6431c7a9846edc56dcb9fdbcb8c5714ef533719397e07775fa346dfe1037098362931112877e702dbaddb911f48496b8ec3fd573ad521c6071cffe699fe69a474804722582795026ae8dc898b2dbb03d61c04256c1436304d0b43190c998bd8dc22c6a8855293d560bb10cdd81f11f58584ce3e1daa25f657ebb885f9e1ee1adc8979"
+    }
+  },
+  "http": [],
+  "expected": {
+    "status": "authorized",
+    "providerRef": "az1|317276406077|0A7E21C778330DF2|11.48|AZN|20261026100130|0"
+  }
+}

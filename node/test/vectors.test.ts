@@ -5,6 +5,7 @@ import {describe, expect, it} from 'vitest';
 import {Manat, isManatError} from '../src/index.js';
 import type {FetchLike, PaymentProvider, PaymentStatus} from '../src/index.js';
 import {KapitalBankProvider, mapKapitalStatus} from '../src/providers/kapitalbank.js';
+import {AzericardProvider, azericardMacSource} from '../src/providers/azericard.js';
 
 const VECTORS = join(dirname(fileURLToPath(import.meta.url)), '../../spec/vectors');
 
@@ -20,18 +21,37 @@ interface Vector {
     config: Record<string, unknown>;
     input?: unknown;
     http?: HttpStep[];
-    cases?: {input: unknown; expected: {status: PaymentStatus}}[];
+    cases?: {input: unknown; expected: {status?: PaymentStatus; source?: string}}[];
     expected?: Record<string, unknown>;
 }
 
 type Factory = (config: never, fetch: FetchLike) => PaymentProvider;
 
-const PROVIDERS: Record<string, {create: Factory; mapStatus: (input: never) => PaymentStatus}> = {
+const PROVIDERS: Record<string, {create: Factory; mapStatus?: (input: never) => PaymentStatus}> = {
     kapitalbank: {
         create: (config, fetch) => new KapitalBankProvider(config, {fetch}),
         mapStatus: (input) => mapKapitalStatus(input),
     },
+    azericard: {
+        create: (config, fetch) => new AzericardProvider(config, {fetch}),
+    },
 };
+
+/**
+ * Turns the JSON-friendly vector config into adapter config, the same way in every language:
+ * `<name>File` is read relative to the provider's vector folder, `clock` (ISO time) and
+ * `nonce` (string) become fixed generator functions.
+ */
+function resolveConfig(provider: string, config: Record<string, unknown>): Record<string, unknown> {
+    const out: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(config)) {
+        if (key.endsWith('File') && typeof value === 'string') out[key.slice(0, -4)] = readFileSync(join(VECTORS, provider, value), 'utf8');
+        else if (key === 'clock' && typeof value === 'string') out.clock = () => new Date(value);
+        else if (key === 'nonce' && typeof value === 'string') out.nonce = () => value;
+        else out[key] = value;
+    }
+    return out;
+}
 
 /** Fake fetch that serves the scripted steps in order and checks each request. */
 function scriptedFetch(steps: HttpStep[]): {fetch: FetchLike; done: () => void} {
@@ -73,14 +93,22 @@ describe('shared test vectors', () => {
             if (!provider) throw new Error(`no adapter registered for ${vector.provider}`);
 
             if (vector.operation === 'mapStatus') {
+                if (!provider.mapStatus) throw new Error(`${vector.provider} has no mapStatus`);
                 for (const testCase of vector.cases ?? []) {
                     expect(provider.mapStatus(testCase.input as never), JSON.stringify(testCase.input)).toBe(testCase.expected.status);
                 }
                 return;
             }
+            if (vector.operation === 'macSource') {
+                for (const testCase of vector.cases ?? []) {
+                    const {fields, order} = testCase.input as {fields: Record<string, string>; order: string[]};
+                    expect(azericardMacSource(fields, order)).toBe(testCase.expected.source);
+                }
+                return;
+            }
 
             const {fetch, done} = scriptedFetch(vector.http ?? []);
-            const manat = new Manat(provider.create(vector.config as never, fetch));
+            const manat = new Manat(provider.create(resolveConfig(vector.provider, vector.config) as never, fetch));
             const run = () => (manat as unknown as Record<string, (input: unknown) => Promise<unknown>>)[vector.operation]!(vector.input);
             const expected = vector.expected ?? {};
 

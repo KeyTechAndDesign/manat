@@ -1,0 +1,49 @@
+{
+  "provider": "azericard",
+  "config": {
+    "terminal": "17205356",
+    "privateKeyFile": "keys/merchant-private.pem",
+    "gatewayPublicKeyFile": "keys/gateway-public.pem",
+    "merchantName": "Test Shop",
+    "merchantUrl": "https://shop.example",
+    "environment": "test",
+    "clock": "2026-10-26T10:00:00.000Z",
+    "nonce": "a1b2c3d4e5f60718293a4b5c6d7e8f90"
+  },
+  "description": "Purchase (TRTYPE 1): signed form fields, MAC over AMOUNT CURRENCY TERMINAL TRTYPE TIMESTAMP NONCE MERCH_URL",
+  "operation": "createPayment",
+  "input": {
+    "orderId": "20261026000001",
+    "amount": {
+      "amount": 1148,
+      "currency": "AZN"
+    },
+    "returnUrl": "https://shop.example/thanks",
+    "callbackUrl": "https://shop.example/azericard/result"
+  },
+  "http": [],
+  "expected": {
+    "paymentId": "20261026000001",
+    "status": "pending",
+    "next": {
+      "type": "form",
+      "url": "https://testmpi.3dsecure.az/cgi-bin/cgi_link",
+      "method": "POST",
+      "fields": {
+        "AMOUNT": "11.48",
+        "CURRENCY": "AZN",
+        "ORDER": "20261026000001",
+        "DESC": "Order 20261026000001",
+        "MERCH_NAME": "Test Shop",
+        "MERCH_URL": "https://shop.example",
+        "TERMINAL": "17205356",
+        "TRTYPE": "1",
+        "TIMESTAMP": "20261026100000",
+        "NONCE": "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+        "BACKREF": "https://shop.example/azericard/result",
+        "LANG": "az",
+        "P_SIGN": "8e4f919231acf73650ca16aaba4d1ecf9119e32b48dbe6877a4bb9483a62d6d90d639869c9309eebdf166a750aec9b7aa729faf1c3b1e1ff6a2c36799adaac1f5a2a07581d8d00048b6bbd3663373ab0de99a51aa489333bc06a7c4f999ab8cf2817da75d299c1e3a1e30ecf2121efa6bc0f5c7accf30f745d0f1a564f340a3cca40cdbb079a296ee96f71f97631d1d3bd76ec08ab00058850ed2ba469cb9a8ce02d65bfc560f88bc21e3e2ce1d5de849420407cfed09f9911509506db39c265cc8b37af29ffdea379b3059e13267cf8cfb4c78b33daf1a4b10962313f7acffa6f45c97559e47c4d4f27fc4ab8960d4a0e9ac1f4a3f7ffe77b648b02dd4ab941"
+      }
+    }
+  }
+}

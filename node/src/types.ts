@@ -53,6 +53,11 @@ export interface PaymentEvent {
     orderId?: string;
     status: PaymentStatus;
     amount?: Money;
+    /**
+     * Opaque provider data needed for later operations (e.g. Azericard's RRN and INT_REF).
+     * Store it with the order and pass it back to refund/capture/cancel unchanged.
+     */
+    providerRef?: string;
     raw: unknown;
 }
 
@@ -61,11 +66,22 @@ export interface PaymentState {
     status: PaymentStatus;
     amount?: Money;
     refundedAmount?: Money;
+    providerRef?: string;
     raw: unknown;
+}
+
+/** Input for capture/cancel. */
+export interface PaymentAction {
+    paymentId: string;
+    /** From PaymentEvent.providerRef, for providers that need it. */
+    providerRef?: string;
+    amount?: Money;
 }
 
 export interface RefundRequest {
     paymentId: string;
+    /** From PaymentEvent.providerRef, for providers that need it. */
+    providerRef?: string;
     /** Omit for a full refund. */
     amount?: Money;
 }
@@ -87,6 +103,6 @@ export interface PaymentProvider {
     verifyCallback(callback: IncomingCallback): Promise<PaymentEvent>;
     getStatus?(input: {paymentId: string}): Promise<PaymentState>;
     refund?(request: RefundRequest): Promise<RefundResult>;
-    capture?(input: {paymentId: string; amount?: Money}): Promise<PaymentState>;
-    cancel?(input: {paymentId: string}): Promise<PaymentState>;
+    capture?(input: PaymentAction): Promise<PaymentState>;
+    cancel?(input: PaymentAction): Promise<PaymentState>;
 }

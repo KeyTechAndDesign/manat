@@ -3,10 +3,9 @@
 One API for Azerbaijani online payment providers, in several languages.
 
 ```ts
-import {Manat, azn} from 'manat';
-import {payriff} from 'manat/payriff'; // provider adapters land here
+import {Manat, azn, kapitalBank} from 'manat';
 
-const pay = new Manat(payriff({secretKey: process.env.PAYRIFF_SECRET!}));
+const pay = new Manat(kapitalBank({username: process.env.KB_USER!, password: process.env.KB_PASSWORD!}));
 
 const {next} = await pay.createPayment({
     orderId: 'A-1001',
@@ -28,6 +27,22 @@ const {next} = await pay.createPayment({
 | Python     | `pip install manat`          | planned     |
 
 The shared interface and the cross-language test vectors live in [`spec/`](spec/README.md).
+
+## Providers
+
+| Provider     | createPayment | verifyCallback | getStatus | refund | capture | cancel | Notes |
+|--------------|:-:|:-:|:-:|:-:|:-:|:-:|---|
+| Kapital Bank | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | REST + Basic auth; the redirect back is unsigned, so callbacks are confirmed through the API |
+| Azericard    | ✓ (form POST) | ✓ | — | ✓ | ✓ | ✓ | RSA-signed CGI interface; store `event.providerRef` for refunds/captures |
+| Payriff      | planned | | | | | | |
+| Epoint       | planned | | | | | | |
+
+```ts
+import {Manat, azericard, kapitalBank} from 'manat';
+
+const kapital = new Manat(kapitalBank({username, password, environment: 'test'}));
+const azc = new Manat(azericard({terminal, privateKey, gatewayPublicKey, merchantName, merchantUrl, environment: 'test'}));
+```
 
 Not affiliated with any bank or payment provider. MIT licensed, provided without warranty: test against your provider's sandbox before going live.
 

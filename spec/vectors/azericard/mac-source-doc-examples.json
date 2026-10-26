@@ -1,0 +1,80 @@
+{
+  "provider": "azericard",
+  "config": {
+    "terminal": "17205356",
+    "privateKeyFile": "keys/merchant-private.pem",
+    "gatewayPublicKeyFile": "keys/gateway-public.pem",
+    "merchantName": "Test Shop",
+    "merchantUrl": "https://shop.example",
+    "environment": "test",
+    "clock": "2026-10-26T10:00:00.000Z",
+    "nonce": "a1b2c3d4e5f60718293a4b5c6d7e8f90"
+  },
+  "description": "MAC source strings exactly as printed in the docs (status example in 8.3, legacy example in 2.2, empty value rule in 4.3)",
+  "operation": "macSource",
+  "cases": [
+    {
+      "input": {
+        "fields": {
+          "ORDER": "20211112075614",
+          "TERMINAL": "17202191",
+          "TRTYPE": "90",
+          "TIMESTAMP": "20211112075714",
+          "NONCE": "7cfb4c2512eeec72"
+        },
+        "order": [
+          "ORDER",
+          "TERMINAL",
+          "TRTYPE",
+          "TIMESTAMP",
+          "NONCE"
+        ]
+      },
+      "expected": {
+        "source": "14202111120756148172021912901420211112075714167cfb4c2512eeec72"
+      }
+    },
+    {
+      "input": {
+        "fields": {
+          "TERMINAL": "17200780",
+          "TRTYPE": "0",
+          "AMOUNT": "11.48",
+          "TIMESTAMP": "20030105153021",
+          "DESC": "IT Books. Qty: 2"
+        },
+        "order": [
+          "TERMINAL",
+          "TRTYPE",
+          "AMOUNT",
+          "TIMESTAMP",
+          "DESC"
+        ]
+      },
+      "expected": {
+        "source": "81720078010511.48142003010515302116IT Books. Qty: 2"
+      }
+    },
+    {
+      "input": {
+        "fields": {
+          "AMOUNT": "1.00",
+          "TERMINAL": "17205356",
+          "APPROVAL": "",
+          "RRN": "317276406077",
+          "INT_REF": "0A7E21C778330DF2"
+        },
+        "order": [
+          "AMOUNT",
+          "TERMINAL",
+          "APPROVAL",
+          "RRN",
+          "INT_REF"
+        ]
+      },
+      "expected": {
+        "source": "41.00817205356-12317276406077160A7E21C778330DF2"
+      }
+    }
+  ]
+}

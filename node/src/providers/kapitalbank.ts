@@ -19,6 +19,7 @@ import type {
     Currency,
     IncomingCallback,
     Money,
+    PaymentAction,
     PaymentEvent,
     PaymentProvider,
     PaymentState,
@@ -157,14 +158,14 @@ export class KapitalBankProvider implements PaymentProvider {
         return result;
     }
 
-    async capture({paymentId, amount}: {paymentId: string; amount?: Money}): Promise<PaymentState> {
+    async capture({paymentId, amount}: PaymentAction): Promise<PaymentState> {
         const tran: Record<string, unknown> = {phase: 'Clearing'};
         tran.amount = toDecimalString(amount ?? (await this.getStatus({paymentId})).amount ?? missingAmount(paymentId));
         await this.exec(paymentId, tran);
         return this.getStatus({paymentId});
     }
 
-    async cancel({paymentId}: {paymentId: string}): Promise<PaymentState> {
+    async cancel({paymentId}: PaymentAction): Promise<PaymentState> {
         const current = await this.getStatus({paymentId});
         // Reversal of a pre-auth hold uses phase Auth; a same-day purchase uses phase Single.
         const phase = current.status === 'authorized' ? 'Auth' : 'Single';

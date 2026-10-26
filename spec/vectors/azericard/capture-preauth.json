@@ -1,0 +1,47 @@
+{
+  "provider": "azericard",
+  "config": {
+    "terminal": "17205356",
+    "privateKeyFile": "keys/merchant-private.pem",
+    "gatewayPublicKeyFile": "keys/gateway-public.pem",
+    "merchantName": "Test Shop",
+    "merchantUrl": "https://shop.example",
+    "environment": "test",
+    "clock": "2026-10-26T10:00:00.000Z",
+    "nonce": "a1b2c3d4e5f60718293a4b5c6d7e8f90"
+  },
+  "description": "Completion TRTYPE 21 captures a pre-authorization",
+  "operation": "capture",
+  "input": {
+    "paymentId": "20261026000001",
+    "providerRef": "az1|317276406077|0A7E21C778330DF2|11.48|AZN|20261026100130|0"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://testmpi.3dsecure.az/cgi-bin/cgi_link",
+        "form": {
+          "AMOUNT": "11.48",
+          "CURRENCY": "AZN",
+          "ORDER": "20261026000001",
+          "RRN": "317276406077",
+          "INT_REF": "0A7E21C778330DF2",
+          "TERMINAL": "17205356",
+          "TRTYPE": "21",
+          "TIMESTAMP": "20261026100000",
+          "NONCE": "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+          "P_SIGN": "1a4876d24705e046386d33c0e620b8455f132f69b5ed869cc1e08d2421a0e38a7d37a4bb1b35ff542b912019d6b6fab873ad2022eb50ff1bd6de916f0a80effd2459c04ecd9d946747d5899532e42bc6f73e6241517dd06513983fb232c15873cbd61daafae4ccb9bef644438af269d0e19383c9b3c222a119c67d6ad94926e1685c132dbe9925d08303309ab1a4de3a41d210ed3732d8660ad5bc0bd3f0073adfda44590919b3f8b47f852a3ebba5932a7c091e25afbcc50c9be24ae0d2403ae17ff35e2299a238a89ae20045c6ebac70386033db058d38b1be417c53a29df25beeec34d7c6f204abaad783382a11b6a2ddfc239f86655778ef61e6b94b2db8"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "text": "0"
+      }
+    }
+  ],
+  "expected": {
+    "status": "paid",
+    "providerRef": "az1|317276406077|0A7E21C778330DF2|11.48|AZN|20261026100130|21"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "provider": "azericard",
+  "config": {
+    "terminal": "17205356",
+    "privateKeyFile": "keys/merchant-private.pem",
+    "gatewayPublicKeyFile": "keys/gateway-public.pem",
+    "merchantName": "Test Shop",
+    "merchantUrl": "https://shop.example",
+    "environment": "test",
+    "clock": "2026-10-26T10:00:00.000Z",
+    "nonce": "a1b2c3d4e5f60718293a4b5c6d7e8f90"
+  },
+  "description": "Cancel releases the hold with an online reversal (TRTYPE 22) of the full amount",
+  "operation": "cancel",
+  "input": {
+    "paymentId": "20261026000001",
+    "providerRef": "az1|317276406077|0A7E21C778330DF2|11.48|AZN|20261026100130|0"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://testmpi.3dsecure.az/cgi-bin/cgi_link",
+        "form": {
+          "AMOUNT": "11.48",
+          "CURRENCY": "AZN",
+          "ORDER": "20261026000001",
+          "RRN": "317276406077",
+          "INT_REF": "0A7E21C778330DF2",
+          "TERMINAL": "17205356",
+          "TRTYPE": "22",
+          "TIMESTAMP": "20261026100000",
+          "NONCE": "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+          "P_SIGN": "0e12673e9c5fff045de3d323e82f227d3560edfb17fb50088a73b3dbe0df8c7767cefd6bda82c45fe69e11739f17524743e6b6f17a74759b9ee3e04fe6c4d3a6bfb023b23490a2c5f6e1aedba3a2304ee1c9b3f855a8b4f04a1d0d3fe437e8d3eadb415396099afdd2e27fb0fd78582a3e0f7ec4ed46ef32b8706e9bb4c080fb7bd55e32cf8218b8b48ee18a2dfd28c2d5f921371a6bab545360ae464ed441955db3805a72920f73143596866d7489ca177d71bf8c350c819a578cc8f074372e2c8e92b6570658c228c6dd484a8f11301ba0c971069916b9b54f9d095d4ca868416827325eb341b0f928d385cffd23bdc41298d12078e61d45e9b1173722ee02"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "text": "0"
+      }
+    }
+  ],
+  "expected": {
+    "status": "cancelled"
+  }
+}

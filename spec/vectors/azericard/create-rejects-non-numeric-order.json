@@ -1,0 +1,27 @@
+{
+  "provider": "azericard",
+  "config": {
+    "terminal": "17205356",
+    "privateKeyFile": "keys/merchant-private.pem",
+    "gatewayPublicKeyFile": "keys/gateway-public.pem",
+    "merchantName": "Test Shop",
+    "merchantUrl": "https://shop.example",
+    "environment": "test",
+    "clock": "2026-10-26T10:00:00.000Z",
+    "nonce": "a1b2c3d4e5f60718293a4b5c6d7e8f90"
+  },
+  "description": "ORDER must be 6-32 digits",
+  "operation": "createPayment",
+  "input": {
+    "orderId": "A-1001",
+    "amount": {
+      "amount": 100,
+      "currency": "AZN"
+    },
+    "returnUrl": "https://shop.example/thanks"
+  },
+  "http": [],
+  "expected": {
+    "error": "invalid_request"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "provider": "azericard",
+  "config": {
+    "terminal": "17205356",
+    "privateKeyFile": "keys/merchant-private.pem",
+    "gatewayPublicKeyFile": "keys/gateway-public.pem",
+    "merchantName": "Test Shop",
+    "merchantUrl": "https://shop.example",
+    "environment": "test",
+    "clock": "2026-10-26T10:00:00.000Z",
+    "nonce": "a1b2c3d4e5f60718293a4b5c6d7e8f90"
+  },
+  "description": "intent=authorize sends TRTYPE 0; without callbackUrl BACKREF is the returnUrl",
+  "operation": "createPayment",
+  "input": {
+    "orderId": "20261026000002",
+    "amount": {
+      "amount": 2500,
+      "currency": "AZN"
+    },
+    "returnUrl": "https://shop.example/thanks",
+    "intent": "authorize",
+    "language": "en",
+    "description": "Hotel deposit"
+  },
+  "http": [],
+  "expected": {
+    "paymentId": "20261026000002",
+    "next": {
+      "type": "form",
+      "fields": {
+        "AMOUNT": "25.00",
+        "CURRENCY": "AZN",
+        "ORDER": "20261026000002",
+        "DESC": "Hotel deposit",
+        "MERCH_NAME": "Test Shop",
+        "MERCH_URL": "https://shop.example",
+        "TERMINAL": "17205356",
+        "TRTYPE": "0",
+        "TIMESTAMP": "20261026100000",
+        "NONCE": "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+        "BACKREF": "https://shop.example/thanks",
+        "LANG": "en",
+        "P_SIGN": "a6d19553908be36d543a33fb9b169c3e214b3376c4a5595ad78c6c9e8e36f952c57b6ac251de64c27641a8066bea056b2f679b1f5c778a7826117ec63671150f15cc16b5eca4b46d629b495b6c698cc4389c0a4794b418da879e7761ffb7c81e03ada79ddc2f2ea49d5407f806c97f57f7d0a5fb42d47acbe98e67e8cd3355b796f28c9af5c730e85dc94077c3c9d9098f2c6603aa7c69121109930448d56bb0af9fab501cd8976b9ebcccd3e51dc01d2b04c67058e8ff2b9d958244fd290133417fe15b2aa698b63cf8a3e1b1d21bdd144a54af00049d2b98cbf8366f6b9b2c251ae9321b6926c382448644f015c88ea7b6ce75c0ca6acc4dfd8bcc9a53def3"
+      }
+    }
+  }
+}

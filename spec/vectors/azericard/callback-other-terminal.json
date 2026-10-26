@@ -1,0 +1,37 @@
+{
+  "provider": "azericard",
+  "config": {
+    "terminal": "17205356",
+    "privateKeyFile": "keys/merchant-private.pem",
+    "gatewayPublicKeyFile": "keys/gateway-public.pem",
+    "merchantName": "Test Shop",
+    "merchantUrl": "https://shop.example",
+    "environment": "test",
+    "clock": "2026-10-26T10:00:00.000Z",
+    "nonce": "a1b2c3d4e5f60718293a4b5c6d7e8f90"
+  },
+  "description": "A correctly signed callback for another terminal is rejected",
+  "operation": "verifyCallback",
+  "input": {
+    "method": "POST",
+    "body": {
+      "TERMINAL": "17205357",
+      "TRTYPE": "1",
+      "ORDER": "20261026000001",
+      "AMOUNT": "11.48",
+      "CURRENCY": "944",
+      "ACTION": "0",
+      "RC": "00",
+      "APPROVAL": "123456",
+      "RRN": "317276406077",
+      "INT_REF": "0A7E21C778330DF2",
+      "TIMESTAMP": "20261026100130",
+      "NONCE": "f0e1d2c3b4a59687",
+      "P_SIGN": "24835e9a405d937ed4045dbe0918b37ac98868c9a952b97d7de850ea652aec9660ea5358063934dc199b96fa1a7e697dc847da6d18d0655e04bf5ef9c625b5d4f6696aec8c13c0446df86716d9a8e8c48bd6aefdb4055042d915dff5562a0d40efae52b83c9ab1cc59fe1786e77987d3c4458fd66af3faec8171b2d9130ad4041e1be323398d14f635fd4f8fc70ae1fe7fbec36882187a37cc9fe0cd94a3d6193dc2a1de74c42c1cb2954c9c2240fc1b6a67283a487ea0f4501196d55a16ddae6eeab787377b6cef33fa439929229be99aa5d624e760228301149a2291df9222689e1fd2d6b9a3108de56a974621edeab446a82abf65a2bcbdc602b8831cf936"
+    }
+  },
+  "http": [],
+  "expected": {
+    "error": "invalid_signature"
+  }
+}

@@ -5,7 +5,7 @@ import type {
     CreatePaymentRequest,
     CreatePaymentResult,
     IncomingCallback,
-    Money,
+    PaymentAction,
     PaymentEvent,
     PaymentProvider,
     PaymentState,
@@ -52,13 +52,13 @@ export class Manat {
         return this.call('refund', this.provider.refund, request);
     }
 
-    capture(input: {paymentId: string; amount?: Money}): Promise<PaymentState> {
+    capture(input: PaymentAction): Promise<PaymentState> {
         requirePaymentId(input);
         if (input.amount !== undefined) assertMoney(input.amount);
         return this.call('capture', this.provider.capture, input);
     }
 
-    cancel(input: {paymentId: string}): Promise<PaymentState> {
+    cancel(input: PaymentAction): Promise<PaymentState> {
         requirePaymentId(input);
         return this.call('cancel', this.provider.cancel, input);
     }

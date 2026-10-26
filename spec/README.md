@@ -141,3 +141,31 @@ if the adapter sends anything else:
   `"expected": { "error": "provider_error", "providerCode": "…" }`.
 - `operation: "mapStatus"` vectors (`input` = provider status payload,
   `expected.status`) pin each adapter's status mapping without HTTP.
+- `operation: "macSource"` vectors (Azericard) pin how the length-prefixed MAC
+  source string is built from `{fields, order}`.
+- `mapStatus` and `macSource` vectors hold a `cases` array instead of `input`/`expected`.
+
+### Config conventions in vectors
+
+Runners turn the JSON config into adapter config the same way in every language:
+
+- a key ending in `File` (e.g. `privateKeyFile`) is read from a path relative to
+  the provider's vector folder and passed without the suffix (`privateKey`);
+- `clock` (ISO 8601 time) becomes a fixed clock, `nonce` (string) a fixed nonce
+  generator, so signed messages are reproducible.
+
+Signing keys under `vectors/*/keys/` were generated for these tests only. They are
+not provider keys.
+
+## Provider notes
+
+- **providerRef**: some providers need data from the payment callback for later
+  operations (Azericard: RRN, INT_REF, amount, time). Adapters return it as an
+  opaque `providerRef` string on `PaymentEvent`; merchants store it and pass it back
+  to `refund`/`capture`/`cancel` unchanged. Its format is adapter-internal but must be
+  identical across languages (it is pinned by the vectors).
+- **Unsigned redirects** (Kapital Bank) are never trusted: `verifyCallback` re-reads
+  the payment from the provider's API.
+- **Partially signed callbacks** (Azericard signs AMOUNT, TERMINAL, APPROVAL, RRN,
+  INT_REF but not ORDER or ACTION): an approval requires the signed APPROVAL code,
+  and merchants should reject a `providerRef` they have already processed.

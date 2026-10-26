@@ -1,0 +1,37 @@
+{
+  "provider": "azericard",
+  "config": {
+    "terminal": "17205356",
+    "privateKeyFile": "keys/merchant-private.pem",
+    "gatewayPublicKeyFile": "keys/gateway-public.pem",
+    "merchantName": "Test Shop",
+    "merchantUrl": "https://shop.example",
+    "environment": "test",
+    "clock": "2026-10-26T10:00:00.000Z",
+    "nonce": "a1b2c3d4e5f60718293a4b5c6d7e8f90"
+  },
+  "description": "ACTION is not signed: a declined callback with ACTION rewritten to 0 still verifies but stays failed because the signed APPROVAL is empty",
+  "operation": "verifyCallback",
+  "input": {
+    "method": "POST",
+    "body": {
+      "TERMINAL": "17205356",
+      "TRTYPE": "1",
+      "ORDER": "20261026000001",
+      "AMOUNT": "11.48",
+      "CURRENCY": "944",
+      "ACTION": "0",
+      "RC": "00",
+      "APPROVAL": "",
+      "RRN": "317276406077",
+      "INT_REF": "0A7E21C778330DF2",
+      "TIMESTAMP": "20261026100130",
+      "NONCE": "f0e1d2c3b4a59687",
+      "P_SIGN": "480d3fa4f85acce43f7876e4002904ab8b8bc133961309a655c0d7356e944a7c4ca9a7df6e414615e4b0e7055f0a1e01d599e1d1f33ba5cb867f443a30b87cc1a949a42a5b8e0a5c1b3a0f07ec11b36cc0a2950803abe049c896d45ba1084cb41b6e8048f71bea9c25e0646f53ae67e1aa35da1f9e8fc48424f002babaf0fe487302a2c9b2891406a14c2f712065fd4cda24bb1f0d01a369aa3e5682cd3e0d4be62fecc4b0a3ce899098ac7a0b39aca7b6a169d3090b73c3be3e38dd3de1bc1ba9daff6ce0e9db17cf4db426437d62ecd1bf92088f2656b7ca09b81cba9858847f405ba48c67602733941c1a73908d74b179b2bac27092b4807381a01e918439"
+    }
+  },
+  "http": [],
+  "expected": {
+    "status": "failed"
+  }
+}

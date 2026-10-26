@@ -1,0 +1,46 @@
+{
+  "provider": "azericard",
+  "config": {
+    "terminal": "17205356",
+    "privateKeyFile": "keys/merchant-private.pem",
+    "gatewayPublicKeyFile": "keys/gateway-public.pem",
+    "merchantName": "Test Shop",
+    "merchantUrl": "https://shop.example",
+    "environment": "test",
+    "clock": "2026-10-28T09:00:00.000Z",
+    "nonce": "a1b2c3d4e5f60718293a4b5c6d7e8f90"
+  },
+  "description": "After 24h: offline reversal TRTYPE 24 for the full amount taken from providerRef",
+  "operation": "refund",
+  "input": {
+    "paymentId": "20261026000001",
+    "providerRef": "az1|317276406077|0A7E21C778330DF2|11.48|AZN|20261026100130|1"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://testmpi.3dsecure.az/cgi-bin/cgi_link",
+        "form": {
+          "AMOUNT": "11.48",
+          "CURRENCY": "AZN",
+          "ORDER": "20261026000001",
+          "RRN": "317276406077",
+          "INT_REF": "0A7E21C778330DF2",
+          "TERMINAL": "17205356",
+          "TRTYPE": "24",
+          "TIMESTAMP": "20261028090000",
+          "NONCE": "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+          "P_SIGN": "28031e9099ff5c3692d2dddb4f7739332ddffa748bd7c25ca56b0ad4880c89c52909bd659cf53988101098152ef65352918949dc0979c25a6be287b6747fca91ce3c51dca470b8c7d4981e33bf1a667605f2abb6a789455aa6ffddf77f2ae45a1ddcb96114ba5ff5630edb51c4b324f2bfb0ecb3af0511fccba746523582fd9ede31d81db11895a5b0fe065c7943a61df2524b87567bd3504971fffa1b91dafc85ac5b87701008c0da5497a6b3b23770ad51b8d3d9e7be82366b1439a3a2e846e6faf093dbb206abbcfb5a621b8a85cb7329ddd9671ff08203e535d9856d0c04f22d2515b181512c96015b84dca7b3384e44c431d8d96b903765de22e818cefb"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "text": "0"
+      }
+    }
+  ],
+  "expected": {
+    "status": "refunded"
+  }
+}
