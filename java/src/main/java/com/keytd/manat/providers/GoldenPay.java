@@ -34,20 +34,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * GoldenPay gateway (rest-pg.goldenpay.az).
- * There is no public documentation. Built from two community SDKs (orkhanahmadov/goldenpay, 2021, and
- * Rasimoghlu/laravel-golden-pay-payment, 2026) and checked against the test host's replies:
- *
- * <ul>
- * <li>{@code POST /getPaymentKey} with {@code hashCode} = md5(authKey + merchantName + amount + description); amounts are
- * integers in qəpik and the API has no currency field, so only AZN is accepted.</li>
- * <li>The customer pays on {@code {host}/pay/{paymentKey}}. The redirect back carries only the payment key and is not
- * signed, so verifyCallback re-reads the payment with {@code GET /getPaymentResult} (hash_code = md5(authKey + key)).</li>
- * <li>Every reply is HTTP 200 with {@code status: {code, message}} at the top level (not under {@code response}, as the
- * newer SDK assumes). Code 1 is success; an unknown payment key answers 900 "Internal exception".</li>
- * <li>Refunds are {@code POST /reversePaymentKey} with an amount and {@code secretKey} = md5(hashCode + amount). There is
- * no pre-auth and no callback URL in the API.</li>
- * </ul>
+ * GoldenPay. AZN only.
+ * The redirect back is unsigned, so verifyCallback re-reads the payment.
  */
 public final class GoldenPay implements PaymentProvider {
     private static final String NAME = "goldenpay";
@@ -55,9 +43,9 @@ public final class GoldenPay implements PaymentProvider {
     private static final String PRODUCTION_URL = "https://rest-pg.goldenpay.az";
     private static final long SUCCESS = 1;
     private static final long REVERSED = 817;
-    /** getPaymentResult codes that describe a payment; others (801–812, 900, 901…) are request errors. */
+    /** getPaymentResult codes that describe a payment; others are request errors. */
     private static final Set<Long> PAYMENT_CODES = new HashSet<>(Arrays.asList(SUCCESS, 813L, 814L, 815L, 816L, REVERSED, 818L, 819L));
-    /** The SDKs cap the description at 500 bytes. */
+    /** Description limit in bytes. */
     private static final int MAX_DESCRIPTION_BYTES = 500;
     private static final Pattern PAYMENT_KEY = Pattern.compile("^[A-Za-z0-9-]{1,64}$");
     private static final Set<Capability> CAPABILITIES = Collections.unmodifiableSet(EnumSet.of(
@@ -250,7 +238,7 @@ public final class GoldenPay implements PaymentProvider {
         body.put("amount", amount.amount());
         body.put("secretKey", Crypto.md5Hex(hashCode + amount.amount()));
         Map<String, Object> response = call("POST", "reversePaymentKey", body);
-        // The 2026 SDK treats 817 (reversed) as success; 1 is the API's general success code.
+        // 817 (reversed) and 1 both mean success.
         Long code = statusCode(response);
         if (code == null || (code != REVERSED && code != SUCCESS)) {
             throw error("refund failed", response);

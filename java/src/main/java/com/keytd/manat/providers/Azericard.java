@@ -50,32 +50,16 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 /**
- * Azericard e-commerce gateway (CGI form-post interface, RSA-signed).
- * Docs: https://developer.azericard.com/en
- *
- * <ul>
- * <li>The customer's browser POSTs a signed form to the gateway ({@code next().type() == FORM}).</li>
- * <li>Every message carries P_SIGN: RSA-SHA256 (PKCS#1 v1.5, hex) over a "MAC source" where each field value is
- * prefixed with its byte length and empty values become "-". Field order differs per message type and the docs note
- * it can differ per terminal, so every order can be overridden with {@code macFields}.</li>
- * <li>The result is POSTed back to BACKREF and signed with the gateway (MPI) key over AMOUNT, TERMINAL, APPROVAL, RRN,
- * INT_REF. ORDER and ACTION are NOT covered by that signature, so a payment only counts as approved when the signed
- * APPROVAL code is present, and merchants should reject a providerRef (RRN + INT_REF) they have already seen.</li>
- * <li>Completion (21) and reversals (22 online, 24 offline) are server-to-server form POSTs that answer with a bare
- * ACTION code ("0" = approved).</li>
- * <li>The gateway delivers the result to BACKREF server-to-server (checked on the test gateway: nothing is posted through
- * the browser), so BACKREF must be reachable from the internet.</li>
- * <li>Status (TRTYPE 90) answers in JSON. Its {@code signature} does not match any documented field order with the
- * published test key, so getStatus relies on TLS to the gateway instead.</li>
- * </ul>
+ * Azericard (form POST, RSA-signed).
+ * Each message is signed over the length-prefixed values of a fixed field list (macFields).
+ * The callback signature does not cover ORDER or ACTION, so only a signed APPROVAL counts as approved.
  */
 public final class Azericard implements PaymentProvider {
     private static final String NAME = "azericard";
     private static final String TEST_URL = "https://testmpi.3dsecure.az/cgi-bin/cgi_link";
-    /** Not in the public docs (they only publish the test URL); used by existing integrations. */
     private static final String PRODUCTION_URL = "https://mpi.3dsecure.az/cgi-bin/cgi_link";
 
-    /** MAC field orders from the docs (sections 2.2.1–2.2.4 and 4.3), keyed by message type. */
+    /** MAC field orders per message type. */
     public static final Map<String, List<String>> MAC_FIELDS;
 
     static {
@@ -307,7 +291,7 @@ public final class Azericard implements PaymentProvider {
         return TIMESTAMP.format(instant.atOffset(ZoneOffset.UTC));
     }
 
-    /** Status of one transaction type from a TRTYPE 90 reply (field names as returned by the test gateway). */
+    /** Status of one transaction type from a TRTYPE 90 reply. */
     public static PaymentStatus mapStatusResponse(Map<String, Object> data, String tranTrtype) {
         if (approved(data)) {
             return "0".equals(tranTrtype) ? PaymentStatus.AUTHORIZED : PaymentStatus.PAID;
@@ -381,12 +365,7 @@ public final class Azericard implements PaymentProvider {
         return new PaymentEvent(order, order, status, amount, providerRef, fields);
     }
 
-    /**
-     * TRTYPE 90. Works for 24 hours after the payment. The original TRTYPE is not known from the paymentId alone, so a
-     * purchase (1) is asked for first and a pre-auth (0) on "context mismatch". The answer only describes the transaction
-     * type asked about, so completion (21) and the reversals (22 online, 24 offline) are queried too. Only the latest
-     * offline reversal is visible this way, so refundedAmount can be lower than the truth after several 24s.
-     */
+    /** TRTYPE 90 answers for one transaction type, so the purchase (or pre-auth), completion and reversals are each queried. */
     @Override
     public PaymentState getStatus(String paymentId) {
         if (!ORDER.matcher(paymentId).matches()) {
@@ -459,8 +438,7 @@ public final class Azericard implements PaymentProvider {
         if (amount.currency() != ref.amount.currency() || amount.amount() > ref.amount.amount()) {
             throw new ManatError(ManatError.Code.INVALID_REQUEST, "azericard: refund amount exceeds the paid amount or uses another currency");
         }
-        // Online reversal (22) is only possible before settlement and only once per transaction
-        // (a second 22 fails with ACTION 3 on the gateway); everything else is an offline reversal (24).
+        // Online reversal (22) works once, before settlement; otherwise it is offline (24).
         Instant paidAt = parseTimestamp(ref.timestamp);
         String trtype = "24";
         if (paidAt != null && clock.instant().getEpochSecond() - paidAt.getEpochSecond() < DAY_SECONDS) {

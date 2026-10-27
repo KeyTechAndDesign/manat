@@ -34,16 +34,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * Kapital Bank e-commerce gateway (TXPG REST API).
- * Docs: https://pg.kapitalbank.az/docs
- *
- * <ul>
- * <li>Basic auth with the merchant's API user; requests are not signed.</li>
- * <li>The customer pays on the bank's hosted page: {@code {hppUrl}?id=…&password=…}.</li>
- * <li>The bank only redirects the browser back with {@code ?ID=…&STATUS=…}. That redirect is unsigned and its STATUS
- * "can be temporary", so verifyCallback re-reads the order from the API and reports that instead.</li>
- * <li>Amounts are decimal major units ("1.00"); this adapter converts from minor units.</li>
- * </ul>
+ * Kapital Bank (TXPG REST API).
+ * The redirect back (?ID=…&amp;STATUS=…) is unsigned, so verifyCallback re-reads the order.
  */
 public final class KapitalBank implements PaymentProvider {
     private static final String NAME = "kapitalbank";
@@ -131,7 +123,7 @@ public final class KapitalBank implements PaymentProvider {
         return CAPABILITIES;
     }
 
-    /** Order statuses from the docs ("Order Statuses" table). */
+    /** Maps an order's status. */
     public static PaymentStatus mapStatus(Map<String, Object> order) {
         Object status = order.get("status");
         switch (status instanceof String ? (String) status : "") {

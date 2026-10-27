@@ -1,22 +1,7 @@
 /**
- * Azericard e-commerce gateway (CGI form-post interface, RSA-signed).
- * Docs: https://developer.azericard.com/en
- *
- * - The customer's browser POSTs a signed form to the gateway (`next.type === 'form'`).
- * - Every message carries P_SIGN: RSA-SHA256 (PKCS#1 v1.5, hex) over a "MAC source"
- *   where each field value is prefixed with its byte length and empty values become "-".
- *   Field order differs per message type and the docs note it can differ per terminal,
- *   so every order can be overridden with `macFields`.
- * - The result is POSTed back to BACKREF and signed with the gateway (MPI) key over
- *   AMOUNT, TERMINAL, APPROVAL, RRN, INT_REF. ORDER and ACTION are NOT covered by that
- *   signature, so a payment only counts as approved when the signed APPROVAL code is
- *   present, and merchants should reject a providerRef (RRN + INT_REF) they have already seen.
- * - Completion (21) and reversals (22 online, 24 offline) are server-to-server form POSTs
- *   that answer with a bare ACTION code ("0" = approved).
- * - The gateway delivers the result to BACKREF server-to-server (checked on the test gateway:
- *   nothing is posted through the browser), so BACKREF must be reachable from the internet.
- * - Status (TRTYPE 90) answers in JSON. Its `signature` does not match any documented field
- *   order with the published test key, so getStatus relies on TLS to the gateway instead.
+ * Azericard (form POST, RSA-signed).
+ * Each message is signed over the length-prefixed values of a fixed field list (macFields).
+ * The callback signature does not cover ORDER or ACTION, so only a signed APPROVAL counts as approved.
  */
 import {createPrivateKey, createPublicKey, randomBytes, sign, verify, type KeyObject} from 'node:crypto';
 import {ManatError} from '../errors.js';
@@ -69,11 +54,10 @@ export interface AzericardConfig {
 
 const GATEWAY_URLS = {
     test: 'https://testmpi.3dsecure.az/cgi-bin/cgi_link',
-    // Not in the public docs (they only publish the test URL); used by existing integrations.
     production: 'https://mpi.3dsecure.az/cgi-bin/cgi_link',
 } as const;
 
-/** MAC field orders from the docs (sections 2.2.1–2.2.4 and 4.3). */
+/** MAC field orders per message type. */
 export const AZERICARD_MAC_FIELDS: Readonly<Record<AzericardMessage, readonly string[]>> = {
     purchase: ['AMOUNT', 'CURRENCY', 'TERMINAL', 'TRTYPE', 'TIMESTAMP', 'NONCE', 'MERCH_URL'],
     completion: ['AMOUNT', 'CURRENCY', 'TERMINAL', 'TRTYPE', 'ORDER', 'RRN', 'INT_REF'],
@@ -205,13 +189,7 @@ export class AzericardProvider implements PaymentProvider {
         return event;
     }
 
-    /**
-     * TRTYPE 90. Works for 24 hours after the payment. The original TRTYPE is not known from the
-     * paymentId alone, so a purchase (1) is asked for first and a pre-auth (0) on "context mismatch".
-     * The answer only describes the transaction type asked about, so completion (21) and the
-     * reversals (22 online, 24 offline) are queried too. Only the latest offline reversal is
-     * visible this way, so refundedAmount can be lower than the truth after several 24s.
-     */
+    /** TRTYPE 90 answers for one transaction type, so the purchase (or pre-auth), completion and reversals are each queried. */
     async getStatus({paymentId}: {paymentId: string}): Promise<PaymentState> {
         if (!/^\d{6,32}$/.test(paymentId)) throw new ManatError('invalid_request', `azericard: paymentId must be the numeric ORDER, got "${paymentId}"`);
         let trtype = '1';
@@ -298,8 +276,7 @@ export class AzericardProvider implements PaymentProvider {
         if (amount.currency !== ref.amount.currency || amount.amount > ref.amount.amount) {
             throw new ManatError('invalid_request', 'azericard: refund amount exceeds the paid amount or uses another currency');
         }
-        // Online reversal (22) is only possible before settlement and only once per transaction
-        // (a second 22 fails with ACTION 3 on the gateway); everything else is an offline reversal (24).
+        // Online reversal (22) works once, before settlement; otherwise it is offline (24).
         const paidAt = parseTimestamp(ref.timestamp);
         let trtype = '24';
         if (paidAt && this.clock().getTime() - paidAt.getTime() < DAY_MS) {
@@ -345,7 +322,7 @@ export function azericard(config: AzericardConfig, options?: HttpOptions): Azeri
     return new AzericardProvider(config, options);
 }
 
-/** TRTYPE 90 JSON, field names as returned by the test gateway. */
+/** TRTYPE 90 reply. */
 export interface AzericardStatusResponse {
     terminal?: string;
     actionCode?: string;

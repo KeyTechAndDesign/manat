@@ -18,15 +18,8 @@ use Manat\PaymentStatus;
 use Manat\RefundResult;
 
 /**
- * Kapital Bank e-commerce gateway (TXPG REST API).
- * Docs: https://pg.kapitalbank.az/docs
- *
- * - Basic auth with the merchant's API user; requests are not signed.
- * - The customer pays on the bank's hosted page: `{hppUrl}?id=…&password=…`.
- * - The bank only redirects the browser back with `?ID=…&STATUS=…`. That redirect
- *   is unsigned and its STATUS "can be temporary", so verifyCallback re-reads the
- *   order from the API and reports that instead.
- * - Amounts are decimal major units ("1.00"); this adapter converts from minor units.
+ * Kapital Bank (TXPG REST API).
+ * The redirect back (?ID=…&STATUS=…) is unsigned, so verifyCallback re-reads the order.
  */
 final class KapitalBank implements PaymentProvider
 {
@@ -63,7 +56,7 @@ final class KapitalBank implements PaymentProvider
         return ['createPayment', 'verifyCallback', 'getStatus', 'refund', 'capture', 'cancel'];
     }
 
-    /** Order statuses from the docs ("Order Statuses" table). */
+    /** Maps an order's status. */
     public static function mapStatus(array $order): string
     {
         switch ($order['status'] ?? null) {

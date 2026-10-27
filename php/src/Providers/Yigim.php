@@ -19,21 +19,8 @@ use Manat\PaymentStatus;
 use Manat\RefundResult;
 
 /**
- * Yığım MAGNET payment gateway (api.pay.yigim.az).
- * Built from Yığım's MAGNET Merchant API specification (shared with merchants), checked against the
- * sandbox's replies and two community SDKs (The-Hasanov/yigim-magnet, paladium/yigim-gateway-go):
- *
- * - Every command is a GET with query parameters and the headers `X-Merchant`, `X-API-Key` and `X-Type: JSON`
- *   (without X-Type the gateway answers XML). Requests are not signed; the older SDKs' `X-Signature` predates the current API.
- * - Replies are HTTP 200 with `code` (0 = OK) and `message` at the top level. The specification wraps them in
- *   `response`, the sandbox does not; both shapes are read.
- * - The merchant's own `reference` (the orderId) is the payment id. Amounts are sent in qəpik with a numeric
- *   currency code; `payment/status` reports the amount in manat (100 qəpik reads "1").
- * - The webhook (`callback`) is a GET carrying only `reference` and is not signed, so verifyCallback re-reads the
- *   payment with `payment/status`. There is no per-payment return URL: the page the customer goes back to is part of
- *   the merchant's payment-page template, set up by Yığım, so `returnUrl` is not sent.
- * - `cancel` reverses a payment before the day's settlement (or releases a DMS hold); after settlement `refund` is
- *   the way back. Both take an optional amount.
+ * Yığım (MAGNET).
+ * The webhook carries only `reference` and is unsigned, so verifyCallback re-reads the payment.
  */
 final class Yigim implements PaymentProvider
 {
@@ -73,7 +60,7 @@ final class Yigim implements PaymentProvider
         return ['createPayment', 'verifyCallback', 'getStatus', 'refund', 'capture', 'cancel'];
     }
 
-    /** Authorization status codes (section 8.1). */
+    /** Maps a payment status code. */
     public static function mapStatus(?string $status): string
     {
         return match ($status) {
@@ -140,8 +127,7 @@ final class Yigim implements PaymentProvider
             $amount = Money::fromDecimal(is_string($reply['amount']) ? $reply['amount'] : Json::number($reply['amount']), $currency);
         }
 
-        // A refund keeps status 00 and is listed under `refund`. Its entries have not been seen yet; each one's
-        // `amount` is read in manat like the payment's own amount, and an entry without one counts as a full refund.
+        // A refund keeps status 00 and is listed under `refund`.
         $refunds = is_array($reply['refund'] ?? null) ? $reply['refund'] : [];
         $refundedAmount = null;
         if ($status === PaymentStatus::PAID && $refunds !== []) {
@@ -192,7 +178,7 @@ final class Yigim implements PaymentProvider
         self::assertReference($params['reference'] ?? '');
         $headers = ['x-merchant' => $this->config['merchant'], 'x-api-key' => $this->config['apiKey'], 'x-type' => 'JSON'];
         [$status, $data] = $this->http->json('GET', "{$this->baseUrl}/{$command}?" . Form::encode($params), $headers);
-        // The specification nests replies under `response`; the sandbox does not.
+        // Replies may be nested under `response`.
         $reply = is_array($data) && is_array($data['response'] ?? null) ? $data['response'] : $data;
         if (!is_array($reply) || !is_int($reply['code'] ?? null)) {
             throw new ManatError(ManatError::PROVIDER_ERROR, "yigim: unexpected response (HTTP {$status})", provider: 'yigim', raw: $data);

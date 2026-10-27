@@ -33,24 +33,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * Yığım MAGNET payment gateway (api.pay.yigim.az).
- * Built from Yığım's MAGNET Merchant API specification (shared with merchants), checked against the
- * sandbox's replies and two community SDKs (The-Hasanov/yigim-magnet, paladium/yigim-gateway-go):
- *
- * <ul>
- * <li>Every command is a GET with query parameters and the headers {@code X-Merchant}, {@code X-API-Key} and
- * {@code X-Type: JSON} (without X-Type the gateway answers XML). Requests are not signed; the older SDKs'
- * {@code X-Signature} predates the current API.</li>
- * <li>Replies are HTTP 200 with {@code code} (0 = OK) and {@code message} at the top level. The specification wraps them
- * in {@code response}, the sandbox does not; both shapes are read.</li>
- * <li>The merchant's own {@code reference} (the orderId) is the payment id. Amounts are sent in qəpik with a numeric
- * currency code; {@code payment/status} reports the amount in manat (100 qəpik reads "1").</li>
- * <li>The webhook ({@code callback}) is a GET carrying only {@code reference} and is not signed, so verifyCallback
- * re-reads the payment with {@code payment/status}. There is no per-payment return URL: the page the customer goes back
- * to is part of the merchant's payment-page template, set up by Yığım, so returnUrl is not sent.</li>
- * <li>{@code cancel} reverses a payment before the day's settlement (or releases a DMS hold); after settlement
- * {@code refund} is the way back. Both take an optional amount.</li>
- * </ul>
+ * Yığım (MAGNET).
+ * The webhook carries only `reference` and is unsigned, so verifyCallback re-reads the payment.
  */
 public final class Yigim implements PaymentProvider {
     private static final String NAME = "yigim";
@@ -165,7 +149,7 @@ public final class Yigim implements PaymentProvider {
         return CAPABILITIES;
     }
 
-    /** Authorization status codes (section 8.1). */
+    /** Maps a payment status code. */
     public static PaymentStatus mapStatus(String status) {
         switch (status == null ? "" : status) {
             case "S0": // created, waiting for card data
@@ -249,8 +233,7 @@ public final class Yigim implements PaymentProvider {
             amount = Values.money(reply.get("amount"), currency);
         }
 
-        // A refund keeps status 00 and is listed under `refund`. Its entries have not been seen yet; each one's
-        // `amount` is read in manat like the payment's own amount, and an entry without one counts as a full refund.
+        // A refund keeps status 00 and is listed under `refund`.
         List<Object> refunds = Values.list(reply.get("refund"));
         Money refundedAmount = null;
         if (status == PaymentStatus.PAID && refunds != null && !refunds.isEmpty()) {
@@ -308,7 +291,7 @@ public final class Yigim implements PaymentProvider {
         headers.put("x-api-key", apiKey);
         headers.put("x-type", "JSON");
         Http.JsonResponse response = http.json("GET", baseUrl + "/" + command + "?" + Form.encode(params), headers, null, null);
-        // The specification nests replies under `response`; the sandbox does not.
+        // Replies may be nested under `response`.
         Map<String, Object> data = Values.map(response.data);
         Map<String, Object> reply = data != null && Values.map(data.get("response")) != null ? Values.map(data.get("response")) : data;
         Long code = reply == null ? null : Values.integer(reply.get("code"));

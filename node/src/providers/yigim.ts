@@ -1,19 +1,6 @@
 /**
- * Yığım MAGNET payment gateway (api.pay.yigim.az).
- * Built from Yığım's MAGNET Merchant API specification (shared with merchants), checked against the
- * sandbox's replies and two community SDKs (The-Hasanov/yigim-magnet, paladium/yigim-gateway-go):
- *
- * - Every command is a GET with query parameters and the headers `X-Merchant`, `X-API-Key` and `X-Type: JSON`
- *   (without X-Type the gateway answers XML). Requests are not signed; the older SDKs' `X-Signature` predates the current API.
- * - Replies are HTTP 200 with `code` (0 = OK) and `message` at the top level. The specification wraps them in
- *   `response`, the sandbox does not; both shapes are read.
- * - The merchant's own `reference` (the orderId) is the payment id. Amounts are sent in qəpik with a numeric
- *   currency code; `payment/status` reports the amount in manat (100 qəpik reads "1").
- * - The webhook (`callback`) is a GET carrying only `reference` and is not signed, so verifyCallback re-reads the
- *   payment with `payment/status`. There is no per-payment return URL: the page the customer goes back to is part of
- *   the merchant's payment-page template, set up by Yığım, so `returnUrl` is not sent.
- * - `cancel` reverses a payment before the day's settlement (or releases a DMS hold); after settlement `refund` is
- *   the way back. Both take an optional amount.
+ * Yığım (MAGNET).
+ * The webhook carries only `reference` and is unsigned, so verifyCallback re-reads the payment.
  */
 import {ManatError} from '../errors.js';
 import {HttpClient, type HttpOptions} from '../http.js';
@@ -69,7 +56,7 @@ interface YigimReply {
     [key: string]: unknown;
 }
 
-/** Authorization status codes (section 8.1). */
+/** Maps a payment status code. */
 export function mapYigimStatus(status: string | undefined): PaymentStatus {
     switch (status) {
         case 'S0': // created, waiting for card data
@@ -151,8 +138,7 @@ export class YigimProvider implements PaymentProvider {
         const currency = typeof reply.currency === 'string' ? currencyFromNumeric(reply.currency) : undefined;
         if (reply.amount !== undefined && reply.amount !== '' && currency) state.amount = fromDecimal(String(reply.amount), currency);
 
-        // A refund keeps status 00 and is listed under `refund`. Its entries have not been seen yet; each one's
-        // `amount` is read in manat like the payment's own amount, and an entry without one counts as a full refund.
+        // A refund keeps status 00 and is listed under `refund`.
         const refunds = Array.isArray(reply.refund) ? reply.refund : [];
         if (status === 'paid' && refunds.length > 0) {
             const amounts = refunds.map((entry) => (entry && typeof entry === 'object' ? (entry as {amount?: unknown}).amount : undefined));
@@ -214,7 +200,7 @@ export function yigim(config: YigimConfig, options?: HttpOptions): YigimProvider
     return new YigimProvider(config, options);
 }
 
-/** The specification nests replies under `response`; the sandbox does not. */
+/** Replies may be nested under `response`. */
 function unwrap(data: unknown): YigimReply | undefined {
     if (!data || typeof data !== 'object') return undefined;
     const inner = (data as {response?: unknown}).response;

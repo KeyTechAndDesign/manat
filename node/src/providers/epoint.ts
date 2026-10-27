@@ -1,19 +1,6 @@
 /**
- * Epoint gateway, API v1.
- * Docs: https://epoint.az/en/authentication (cross-checked with the rafoabbas/epoint-php and
- * integrify/epoint community SDKs).
- *
- * - Every call is a form POST of `data` (base64 of a JSON object) and `signature` =
- *   base64(sha1(private_key + data + private_key)). Epoint signs its callbacks the same way.
- * - The callback goes to the result URL set in the Epoint merchant panel, not to a per-request URL,
- *   so `callbackUrl` is not sent. The browser redirect back to the shop carries no signed data.
- * - Amounts are sent as decimal strings ("25.50"), as in the docs' own signed example, so no
- *   float formatting is involved and every language produces the same `data`.
- * - Neither the status response nor the callback names a currency, so `amount` is left out of
- *   events and states (it is in `raw.amount`).
- * - Refunds use `/reverse` (full or partial). `/refund-request` is a payout to a saved card, not a
- *   refund, and is not used. Pre-auth (`/pre-auth-request`, `/pre-auth-complete`) is left out: the
- *   documented statuses have no value for a held but uncaptured payment.
+ * Epoint (API v1).
+ * Every message is data (base64 JSON) + signature = base64(sha1(privateKey + data + privateKey)).
  */
 import {ManatError} from '../errors.js';
 import {hash, safeEqual} from '../crypto.js';
@@ -66,7 +53,7 @@ export function epointEncode(privateKey: string, json: string): {data: string; s
     return {data, signature: epointSignature(privateKey, data)};
 }
 
-/** Payment statuses from the callback and get-status docs. "server_error" is handled by getStatus. */
+/** Maps a payment status. */
 export function mapEpointStatus(status: string | undefined): PaymentStatus {
     switch (status) {
         case 'new':

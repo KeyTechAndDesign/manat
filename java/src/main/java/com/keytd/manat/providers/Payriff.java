@@ -32,24 +32,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * Payriff gateway, API v3.
- * Docs: https://docs.payriff.com (cross-checked with Payriff's own Node SDK, @payriff-sdk/node).
- *
- * <ul>
- * <li>{@code Authorization: <secret key>} (no "Bearer"); the same API host serves sandbox and live, the key decides which
- * ("Development" applications are test-only).</li>
- * <li>Every response is {@code {code, message, payload}}; only code "00000" is success, the payment result itself is
- * {@code payload.paymentStatus}.</li>
- * <li>The webhook to callbackUrl is a JSON POST with {@code payload.orderId} and no signature; the docs say to confirm with
- * GET /orders/{id} before fulfilling, so verifyCallback re-reads the order.</li>
- * <li>Amounts are decimal numbers in major units ({@code "amount": 25.5}).</li>
- * <li>Same-day refunds are reversals on Payriff's side, handled by the refund endpoint. There is no documented way to void
- * an uncaptured pre-auth, so cancel is not supported.</li>
- * <li>Test mode accepts one refund per order: after a partial refund, any further refund answers 01000 "Transaction status
- * is not approved", and the order reads REFUNDED with a PARTIAL_REFUND transaction (reported as partially_refunded). It also
- * approves a paid PRE_AUTH order as a sale (APPROVED, not PREAUTH_APPROVED), so capture can only be tried against a live
- * terminal.</li>
- * </ul>
+ * Payriff (API v3).
+ * The webhook is unsigned, so verifyCallback re-reads the order. There is no void for a pre-auth.
  */
 public final class Payriff implements PaymentProvider {
     private static final String NAME = "payriff";
@@ -122,7 +106,7 @@ public final class Payriff implements PaymentProvider {
         return CAPABILITIES;
     }
 
-    /** Payment statuses from the Enums reference plus "PAID" (used in the docs' own examples) and "IN_REVIEW" (SDK). */
+    /** Maps payload.paymentStatus. */
     public static PaymentStatus mapStatus(String status) {
         switch (status == null ? "" : status) {
             case "CREATED":

@@ -17,18 +17,8 @@ use Manat\PaymentStatus;
 use Manat\RefundResult;
 
 /**
- * GoldenPay gateway (rest-pg.goldenpay.az).
- * There is no public documentation. Built from two community SDKs (orkhanahmadov/goldenpay, 2021, and
- * Rasimoghlu/laravel-golden-pay-payment, 2026) and checked against the test host's replies:
- *
- * - `POST /getPaymentKey` with `hashCode` = md5(authKey + merchantName + amount + description); amounts are
- *   integers in qəpik and the API has no currency field, so only AZN is accepted.
- * - The customer pays on `{host}/pay/{paymentKey}`. The redirect back carries only the payment key and is not
- *   signed, so verifyCallback re-reads the payment with `GET /getPaymentResult` (hash_code = md5(authKey + key)).
- * - Every reply is HTTP 200 with `status: {code, message}` at the top level (not under `response`, as the
- *   newer SDK assumes). Code 1 is success; an unknown payment key answers 900 "Internal exception".
- * - Refunds are `POST /reversePaymentKey` with an amount and `secretKey` = md5(hashCode + amount). There is no
- *   pre-auth and no callback URL in the API.
+ * GoldenPay. AZN only.
+ * The redirect back is unsigned, so verifyCallback re-reads the payment.
  */
 final class GoldenPay implements PaymentProvider
 {
@@ -38,9 +28,9 @@ final class GoldenPay implements PaymentProvider
     ];
     private const SUCCESS = 1;
     private const REVERSED = 817;
-    /** getPaymentResult codes that describe a payment; others (801–812, 900, 901…) are request errors. */
+    /** getPaymentResult codes that describe a payment; others are request errors. */
     private const PAYMENT_CODES = [1, 813, 814, 815, 816, 817, 818, 819];
-    /** The SDKs cap the description at 500 bytes. */
+    /** Description limit in bytes. */
     private const MAX_DESCRIPTION_BYTES = 500;
     private const PAYMENT_KEY = '/^[A-Za-z0-9-]{1,64}$/';
 
@@ -160,7 +150,7 @@ final class GoldenPay implements PaymentProvider
             'amount' => $amount->amount,
             'secretKey' => md5($hashCode . $amount->amount),
         ]);
-        // The 2026 SDK treats 817 (reversed) as success; 1 is the API's general success code.
+        // 817 (reversed) and 1 both mean success.
         $code = $response['status']['code'] ?? null;
         if ($code !== self::REVERSED && $code !== self::SUCCESS) {
             throw $this->error('refund failed', $response);

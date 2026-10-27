@@ -32,22 +32,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * Epoint gateway, API v1.
- * Docs: https://epoint.az/en/authentication (cross-checked with the rafoabbas/epoint-php and integrify/epoint
- * community SDKs).
- *
- * <ul>
- * <li>Every call is a form POST of {@code data} (base64 of a JSON object) and {@code signature} =
- * base64(sha1(private_key + data + private_key)). Epoint signs its callbacks the same way.</li>
- * <li>The callback goes to the result URL set in the Epoint merchant panel, not to a per-request URL, so callbackUrl
- * is not sent. The browser redirect back to the shop carries no signed data.</li>
- * <li>Amounts are sent as decimal strings ("25.50"), as in the docs' own signed example, so no float formatting is
- * involved and every language produces the same {@code data}.</li>
- * <li>Neither the status response nor the callback names a currency, so amount is left out of events and states
- * (it is in {@code raw.amount}).</li>
- * <li>Refunds use {@code /reverse} (full or partial). {@code /refund-request} is a payout to a saved card, not a refund,
- * and is not used. Pre-auth is left out: the documented statuses have no value for a held but uncaptured payment.</li>
- * </ul>
+ * Epoint (API v1).
+ * Every message is data (base64 JSON) + signature = base64(sha1(privateKey + data + privateKey)).
  */
 public final class Epoint implements PaymentProvider {
     private static final String NAME = "epoint";
@@ -146,7 +132,7 @@ public final class Epoint implements PaymentProvider {
         return out;
     }
 
-    /** Payment statuses from the callback and get-status docs. "server_error" is handled by getStatus. */
+    /** Maps a payment status. */
     public static PaymentStatus mapStatus(String status) {
         switch (status == null ? "" : status) {
             case "new":

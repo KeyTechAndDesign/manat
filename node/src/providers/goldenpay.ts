@@ -1,16 +1,6 @@
 /**
- * GoldenPay gateway (rest-pg.goldenpay.az).
- * There is no public documentation. Built from two community SDKs (orkhanahmadov/goldenpay, 2021, and
- * Rasimoghlu/laravel-golden-pay-payment, 2026) and checked against the test host's replies:
- *
- * - `POST /getPaymentKey` with `hashCode` = md5(authKey + merchantName + amount + description); amounts are
- *   integers in qəpik and the API has no currency field, so only AZN is accepted.
- * - The customer pays on `{host}/pay/{paymentKey}`. The redirect back carries only the payment key and is not
- *   signed, so verifyCallback re-reads the payment with `GET /getPaymentResult` (hash_code = md5(authKey + key)).
- * - Every reply is HTTP 200 with `status: {code, message}` at the top level (not under `response`, as the
- *   newer SDK assumes). Code 1 is success; an unknown payment key answers 900 "Internal exception".
- * - Refunds are `POST /reversePaymentKey` with an amount and `secretKey` = md5(hashCode + amount). There is no
- *   pre-auth and no callback URL in the API.
+ * GoldenPay. AZN only.
+ * The redirect back is unsigned, so verifyCallback re-reads the payment.
  */
 import {ManatError} from '../errors.js';
 import {hash} from '../crypto.js';
@@ -47,7 +37,7 @@ const BASE_URLS = {
 const CAPABILITIES: ReadonlySet<Capability> = new Set(['createPayment', 'verifyCallback', 'getStatus', 'refund']);
 const SUCCESS = 1;
 const REVERSED = 817;
-/** The SDKs cap the description at 500 bytes. */
+/** Description limit in bytes. */
 const MAX_DESCRIPTION_BYTES = 500;
 
 interface GoldenPayResponse {
@@ -63,10 +53,7 @@ interface GoldenPayResponse {
     rrn?: string | null;
 }
 
-/**
- * getPaymentResult codes that describe a payment. Other codes (801 to 812 for bad input, 803 hash mismatch,
- * 900 internal exception, 901 invalid data) are request errors.
- */
+/** getPaymentResult codes that describe a payment; others are request errors. */
 export function mapGoldenPayStatus(code: number | undefined): PaymentStatus {
     switch (code) {
         case SUCCESS:
@@ -161,7 +148,7 @@ export class GoldenPayProvider implements PaymentProvider {
             amount: amount.amount,
             secretKey: md5(hashCode + amount.amount),
         });
-        // The 2026 SDK treats 817 (reversed) as success; 1 is the API's general success code.
+        // 817 (reversed) and 1 both mean success.
         const code = response.status?.code;
         if (code !== REVERSED && code !== SUCCESS) throw this.error('refund failed', response);
         const partial = payment.amount !== undefined && amount.amount < payment.amount.amount;
