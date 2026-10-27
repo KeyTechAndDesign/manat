@@ -13,3 +13,7 @@ node/LICENSE
 target/
 bin/
 obj/
+__pycache__/
+*.egg-info/
+python/build/
+python/dist/
