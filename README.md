@@ -30,7 +30,7 @@ const {next} = await pay.createPayment({
 | PHP           | [`composer require keytd/manat`](https://packagist.org/packages/keytd/manat) ([docs](php/README.md)) | 0.1.0 |
 | Java / Kotlin | [`com.keytd:manat`](https://central.sonatype.com/artifact/com.keytd/manat) ([docs](java/README.md)) | 0.1.0 |
 | C# / .NET     | [`dotnet add package KeyTD.Manat`](https://www.nuget.org/packages/KeyTD.Manat) ([docs](dotnet/README.md)) | 0.1.0 |
-| Python        | `keytd-manat` ([docs](python/README.md)) | not yet on PyPI |
+| Python        | [`pip install keytd-manat`](https://pypi.org/project/keytd-manat/) ([docs](python/README.md)) | 0.1.0 |
 | Go            | [`go get github.com/KeyTechAndDesign/manat/go`](https://pkg.go.dev/github.com/KeyTechAndDesign/manat/go) ([docs](go/README.md)) | 0.1.0 |
 
 ## Providers
