@@ -9,4 +9,4 @@ __all__ = [
     "Manat", "ManatError", "is_manat_error", "Money", "azn", "from_decimal",
     "CreatePaymentResult", "IncomingCallback", "NextAction", "PaymentEvent", "PaymentState", "RefundResult",
 ]
-__version__ = "0.2.0"
+from ._version import VERSION as __version__  # noqa: E402

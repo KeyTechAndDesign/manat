@@ -98,6 +98,21 @@ class ManatTest(unittest.TestCase):
         self.assertEqual("invalid_request", caught.exception.code)
 
 
+class UserAgentTest(unittest.TestCase):
+    def test_requests_identify_the_sdk(self) -> None:
+        from manat._http import Http, HttpResponse
+
+        sent = {}
+
+        class Capture:
+            def send(self, method, url, headers, body, timeout):
+                sent.update(headers)
+                return HttpResponse(200, "{}")
+
+        Http("test", Capture(), 5).json("GET", "https://example.com")
+        self.assertRegex(sent["user-agent"], r"^keytd-manat/\d+\.\d+\.\d+ ")
+
+
 class NoDependenciesTest(unittest.TestCase):
     """The package is advertised as dependency-free."""
 

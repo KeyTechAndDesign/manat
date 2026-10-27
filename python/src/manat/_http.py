@@ -7,7 +7,11 @@ from dataclasses import dataclass
 from typing import Any, Dict, Mapping, Optional, Protocol, Tuple
 
 from . import _form, _json
+from ._version import VERSION
 from .errors import NETWORK_ERROR, ManatError
+
+
+USER_AGENT = f"keytd-manat/{VERSION} (+https://github.com/KeyTechAndDesign/manat)"
 
 
 @dataclass(frozen=True)
@@ -53,6 +57,7 @@ class Http:
     def send(self, method: str, url: str, headers: Optional[Mapping[str, str]] = None, json: Any = None,
              form: Optional[Mapping[str, str]] = None) -> HttpResponse:
         lower: Dict[str, str] = {name.lower(): value for name, value in (headers or {}).items()}
+        lower.setdefault("user-agent", USER_AGENT)
         body: Optional[bytes] = None
         if form is not None:
             body = _form.encode(form).encode("utf-8")
