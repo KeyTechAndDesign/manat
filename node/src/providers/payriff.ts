@@ -11,6 +11,9 @@
  * - Amounts are decimal numbers in major units ("amount": 25.5).
  * - Same-day refunds are reversals on Payriff's side, handled by the refund endpoint. There is no
  *   documented way to void an uncaptured pre-auth, so cancel is not supported.
+ * - Test mode accepts one refund per order: after a partial refund, any further refund answers
+ *   01000 "Transaction status is not approved", and the order reads REFUNDED with a PARTIAL_REFUND
+ *   transaction (reported as partially_refunded).
  */
 import {ManatError} from '../errors.js';
 import {HttpClient, type HttpOptions} from '../http.js';
@@ -137,7 +140,7 @@ export class PayriffProvider implements PaymentProvider {
     async getStatus({paymentId}: {paymentId: string}): Promise<PaymentState> {
         const order = await this.call<PayriffOrder>('GET', `/api/v3/orders/${encodeId(paymentId)}`);
         if (!order?.orderId) throw new ManatError('provider_error', `payriff: no order in response for ${paymentId}`, {provider: this.name, raw: order});
-        const state: PaymentState = {paymentId: order.orderId, status: mapPayriffStatus(order.paymentStatus), raw: order};
+        const state: PaymentState = {paymentId: order.orderId, status: orderStatus(order), raw: order};
         if (order.amount !== undefined && order.currencyType) state.amount = fromDecimal(String(order.amount), toCurrency(order.currencyType));
         return state;
     }
@@ -188,6 +191,13 @@ export class PayriffProvider implements PaymentProvider {
 
 export function payriff(config: PayriffConfig, options?: HttpOptions): PayriffProvider {
     return new PayriffProvider(config, options);
+}
+
+/** After a partial refund Payriff reports the order as REFUNDED; only its transaction says PARTIAL_REFUND. */
+function orderStatus(order: PayriffOrder): PaymentStatus {
+    const status = mapPayriffStatus(order.paymentStatus);
+    if (status === 'refunded' && order.transactions?.some((transaction) => transaction.status === 'PARTIAL_REFUND')) return 'partially_refunded';
+    return status;
 }
 
 function callbackOrderId(callback: IncomingCallback): string | undefined {

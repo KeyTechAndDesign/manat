@@ -1,0 +1,76 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "A test-card payment as Payriff test mode returns it: APPROVED is paid, and amount is the order amount, not paidAmount (net of commission)",
+  "operation": "getStatus",
+  "input": {
+    "paymentId": "ff19f372-f7d2-469b-816d-12721b68b81d"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://api.payriff.com/api/v3/orders/ff19f372-f7d2-469b-816d-12721b68b81d",
+        "headers": {
+          "authorization": "test-secret-key"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "code": "00000",
+          "message": "Operation performed successfully",
+          "route": "dashboard/main",
+          "responseId": "a040c5814fc2475297572dea12ec74f1",
+          "responseDetails": null,
+          "payload": {
+            "orderId": "ff19f372-f7d2-469b-816d-12721b68b81d",
+            "amount": 1,
+            "currencyType": "AZN",
+            "merchantName": "YeniBirja",
+            "commissionRate": 3,
+            "paidAmount": 0.97,
+            "operationType": "PURCHASE",
+            "paymentStatus": "APPROVED",
+            "auto": false,
+            "createdDate": "2026-10-27T05:44:53.006858",
+            "description": "manat purchase check",
+            "transactions": [
+              {
+                "uuid": "2fb1aa81-001c-4985-960c-91574dc30e18",
+                "createdDate": "2026-10-27T05:45:55.968478",
+                "status": "APPROVED",
+                "channel": "MOCK_BANK",
+                "requestRrn": "8683952",
+                "responseRrn": "1006649",
+                "pan": "400000******2078",
+                "paymentWay": "DIRECT",
+                "cardDetails": {
+                  "maskedPan": "400000******2078",
+                  "brand": "VISA",
+                  "uuid": "2c31b0f5-1db3-49a4-bf83-c10a48d84a4e",
+                  "cardHolderName": "Test Test"
+                },
+                "merchantCategory": "MOCK_TERMINAL_1",
+                "installment": {
+                  "type": null,
+                  "period": null
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "ff19f372-f7d2-469b-816d-12721b68b81d",
+    "status": "paid",
+    "amount": {
+      "amount": 100,
+      "currency": "AZN"
+    }
+  }
+}

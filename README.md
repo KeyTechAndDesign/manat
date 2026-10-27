@@ -51,10 +51,10 @@ The shared interface and the cross-language test vectors live in [`spec/`](spec/
 - **Payriff** (`api.payriff.com`, key of an application in "Development" status, which Payriff runs in test mode
   only): AZN and USD order creation (with `callbackUrl` and metadata), the hosted payment page, `getStatus`
   (`CREATED` → `pending`, `amount: 1.5` USD → 150 cents, `EXPIRED` → `cancelled` once the payment page timed out),
-  `verifyCallback` re-reading the order, and the errors for
-  an unknown order, a refund of an unpaid order and a capture of an unpaid pre-auth. Paid orders, refunds and
-  captures still need a test-card payment. Test-mode orders also get a `pay.payriff.com` link, not the
-  `sbpay.payriff.com` shown in the docs, and the page shows no test marking.
+  `verifyCallback` re-reading the order, a payment with the docs' sandbox card (`APPROVED` → `paid`), a partial
+  refund, a rejected second refund, and the errors for an unknown order, a refund of an unpaid order and a capture
+  of an unpaid pre-auth. Not yet tested live: a full refund and a capture of a paid pre-auth. Test-mode orders also
+  get a `pay.payriff.com` link, not the `sbpay.payriff.com` shown in the docs, and the page shows no test marking.
 
 Learned on Payriff test mode (not in the docs):
 - Code `01000` covers several errors ("Order info not found", "Transaction status is not approved",
@@ -62,6 +62,10 @@ Learned on Payriff test mode (not in the docs):
 - Metadata comes back from `GET /orders/{id}` as one string (`"{orderRef=A-1001}"`), not as an object.
 - A real card on a Development application is refused ("Only test cards can be used in Development status") and
   the order becomes `DECLINED`; nothing is charged.
+- Only one refund per order is accepted. After a partial refund the order's `paymentStatus` is `REFUNDED` and only
+  the transaction says `PARTIAL_REFUND`; the adapter reports `partially_refunded`. Any further refund answers `01000`.
+- `paidAmount` is the amount net of Payriff's commission (1.00 → 0.97 at 3%); the adapter reports `amount`.
+- An unpaid page expires within minutes (`EXPIRED`, reported as `cancelled`).
 
 Learned on the Azericard test gateway (not in the docs):
 - The payment result goes to BACKREF server-to-server; nothing is posted through the browser.

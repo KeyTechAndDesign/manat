@@ -1,0 +1,40 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "A second refund after a partial one: Payriff test mode accepts one refund per order and answers HTTP 400, code 01000",
+  "operation": "refund",
+  "input": {
+    "paymentId": "ff19f372-f7d2-469b-816d-12721b68b81d"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://api.payriff.com/api/v3/refund",
+        "headers": {
+          "authorization": "test-secret-key"
+        },
+        "json": {
+          "orderId": "ff19f372-f7d2-469b-816d-12721b68b81d",
+          "refundReason": "Refund"
+        }
+      },
+      "respond": {
+        "status": 400,
+        "json": {
+          "code": "01000",
+          "message": "Transaction status is not approved!.\n Support ticket: 791683",
+          "route": "dashboard/main",
+          "responseId": "b23ea2490cfd4c28aa806cea55a285b3",
+          "responseDetails": null
+        }
+      }
+    }
+  ],
+  "expected": {
+    "error": "provider_error",
+    "providerCode": "01000"
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "Partial refund in Payriff test mode: the order then reads REFUNDED but its transaction PARTIAL_REFUND, which is partially_refunded",
+  "operation": "refund",
+  "input": {
+    "paymentId": "ff19f372-f7d2-469b-816d-12721b68b81d",
+    "amount": {
+      "amount": 40,
+      "currency": "AZN"
+    }
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://api.payriff.com/api/v3/refund",
+        "headers": {
+          "authorization": "test-secret-key"
+        },
+        "json": {
+          "orderId": "ff19f372-f7d2-469b-816d-12721b68b81d",
+          "refundReason": "Refund",
+          "amount": 0.4
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "code": "00000",
+          "message": "Operation performed successfully",
+          "route": "dashboard/main",
+          "responseId": "dfaa7fc7913b4c6198c4e154f5c9835f",
+          "responseDetails": null,
+          "payload": null
+        }
+      }
+    },
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://api.payriff.com/api/v3/orders/ff19f372-f7d2-469b-816d-12721b68b81d",
+        "headers": {
+          "authorization": "test-secret-key"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "code": "00000",
+          "message": "Operation performed successfully",
+          "route": "dashboard/main",
+          "responseId": "4c1b54a1539e48f8b31f5de72d742d05",
+          "responseDetails": null,
+          "payload": {
+            "orderId": "ff19f372-f7d2-469b-816d-12721b68b81d",
+            "amount": 1,
+            "currencyType": "AZN",
+            "merchantName": "YeniBirja",
+            "commissionRate": 3,
+            "paidAmount": 0.97,
+            "operationType": "PURCHASE",
+            "paymentStatus": "REFUNDED",
+            "auto": false,
+            "createdDate": "2026-10-27T05:44:53.006858",
+            "description": "manat purchase check",
+            "transactions": [
+              {
+                "uuid": "2fb1aa81-001c-4985-960c-91574dc30e18",
+                "createdDate": "2026-10-27T05:45:55.968478",
+                "status": "PARTIAL_REFUND",
+                "channel": "MOCK_BANK",
+                "requestRrn": "8683952",
+                "responseRrn": "1006650",
+                "pan": "400000******2078",
+                "paymentWay": "DIRECT",
+                "cardDetails": {
+                  "maskedPan": "400000******2078",
+                  "brand": "VISA",
+                  "uuid": "2c31b0f5-1db3-49a4-bf83-c10a48d84a4e",
+                  "cardHolderName": "Test Test"
+                },
+                "merchantCategory": "MOCK_TERMINAL_1",
+                "installment": {
+                  "type": null,
+                  "period": null
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "ff19f372-f7d2-469b-816d-12721b68b81d",
+    "status": "partially_refunded",
+    "refundId": "dfaa7fc7913b4c6198c4e154f5c9835f"
+  }
+}
