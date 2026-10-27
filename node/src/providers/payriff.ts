@@ -13,7 +13,8 @@
  *   documented way to void an uncaptured pre-auth, so cancel is not supported.
  * - Test mode accepts one refund per order: after a partial refund, any further refund answers
  *   01000 "Transaction status is not approved", and the order reads REFUNDED with a PARTIAL_REFUND
- *   transaction (reported as partially_refunded).
+ *   transaction (reported as partially_refunded). It also approves a paid PRE_AUTH order as a sale
+ *   (APPROVED, not PREAUTH_APPROVED), so capture can only be tried against a live terminal.
  */
 import {ManatError} from '../errors.js';
 import {HttpClient, type HttpOptions} from '../http.js';
@@ -146,8 +147,10 @@ export class PayriffProvider implements PaymentProvider {
     }
 
     async refund(request: RefundRequest): Promise<RefundResult> {
-        const body: Record<string, unknown> = {orderId: request.paymentId, refundReason: 'Refund'};
-        if (request.amount) body.amount = Number(toDecimalString(request.amount));
+        // Payriff rejects a refund without an amount ("Request refund amount is null"), so a full refund sends the order amount.
+        const amount = request.amount ?? (await this.getStatus({paymentId: request.paymentId})).amount;
+        if (!amount) throw new ManatError('provider_error', `payriff: order ${request.paymentId} has no amount to refund`, {provider: this.name});
+        const body: Record<string, unknown> = {orderId: request.paymentId, refundReason: 'Refund', amount: Number(toDecimalString(amount))};
         const envelope = await this.callEnvelope<unknown>('POST', '/api/v3/refund', body);
         const state = await this.getStatus({paymentId: request.paymentId});
         const result: RefundResult = {paymentId: request.paymentId, status: state.status, raw: {refund: envelope, order: state.raw}};

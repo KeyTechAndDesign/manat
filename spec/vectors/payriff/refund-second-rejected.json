@@ -6,7 +6,11 @@
   "description": "A second refund after a partial one: Payriff test mode accepts one refund per order and answers HTTP 400, code 01000",
   "operation": "refund",
   "input": {
-    "paymentId": "ff19f372-f7d2-469b-816d-12721b68b81d"
+    "paymentId": "ff19f372-f7d2-469b-816d-12721b68b81d",
+    "amount": {
+      "amount": 30,
+      "currency": "AZN"
+    }
   },
   "http": [
     {
@@ -18,16 +22,17 @@
         },
         "json": {
           "orderId": "ff19f372-f7d2-469b-816d-12721b68b81d",
-          "refundReason": "Refund"
+          "refundReason": "Refund",
+          "amount": 0.3
         }
       },
       "respond": {
         "status": 400,
         "json": {
           "code": "01000",
-          "message": "Transaction status is not approved!.\n Support ticket: 791683",
+          "message": "Transaction status is not approved!.\n Support ticket: 527450",
           "route": "dashboard/main",
-          "responseId": "b23ea2490cfd4c28aa806cea55a285b3",
+          "responseId": "b66a92af50624798998f9684bfac8215",
           "responseDetails": null
         }
       }

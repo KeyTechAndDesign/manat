@@ -52,9 +52,10 @@ The shared interface and the cross-language test vectors live in [`spec/`](spec/
   only): AZN and USD order creation (with `callbackUrl` and metadata), the hosted payment page, `getStatus`
   (`CREATED` → `pending`, `amount: 1.5` USD → 150 cents, `EXPIRED` → `cancelled` once the payment page timed out),
   `verifyCallback` re-reading the order, a payment with the docs' sandbox card (`APPROVED` → `paid`), a partial
-  refund, a rejected second refund, and the errors for an unknown order, a refund of an unpaid order and a capture
-  of an unpaid pre-auth. Not yet tested live: a full refund and a capture of a paid pre-auth. Test-mode orders also
-  get a `pay.payriff.com` link, not the `sbpay.payriff.com` shown in the docs, and the page shows no test marking.
+  refund, a rejected second refund, a full refund, and the errors for an unknown order, a refund of an unpaid order
+  and a capture of an unpaid pre-auth. A capture could not be tested: test mode never holds a pre-auth (see below).
+  Test-mode orders also get a `pay.payriff.com` link, not the `sbpay.payriff.com` shown in the docs, and the page
+  shows no test marking.
 
 Learned on Payriff test mode (not in the docs):
 - Code `01000` covers several errors ("Order info not found", "Transaction status is not approved",
@@ -64,6 +65,11 @@ Learned on Payriff test mode (not in the docs):
   the order becomes `DECLINED`; nothing is charged.
 - Only one refund per order is accepted. After a partial refund the order's `paymentStatus` is `REFUNDED` and only
   the transaction says `PARTIAL_REFUND`; the adapter reports `partially_refunded`. Any further refund answers `01000`.
+- A refund without an amount is rejected ("Request refund amount is null"), so for a full refund the adapter
+  reads the order and sends its amount.
+- A paid `PRE_AUTH` order reads `APPROVED` (not `PREAUTH_APPROVED`) and `/complete` answers "Transaction status is
+  not preauth-approved"; the order can be refunded like a sale. So test mode runs pre-auths as sales, and the
+  `PREAUTH_APPROVED` → `authorized` mapping and `capture` are covered by vectors built from the docs only.
 - `paidAmount` is the amount net of Payriff's commission (1.00 → 0.97 at 3%); the adapter reports `amount`.
 - An unpaid page expires within minutes (`EXPIRED`, reported as `cancelled`).
 

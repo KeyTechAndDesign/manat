@@ -1,0 +1,44 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "In Payriff test mode a paid PRE_AUTH order reads APPROVED (no hold), so capture answers HTTP 400, code 01000 \"not preauth-approved\"",
+  "operation": "capture",
+  "input": {
+    "paymentId": "64b3c834-c431-41a2-8468-215b62e6a2e2",
+    "amount": {
+      "amount": 100,
+      "currency": "AZN"
+    }
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://api.payriff.com/api/v3/complete",
+        "headers": {
+          "authorization": "test-secret-key"
+        },
+        "json": {
+          "orderId": "64b3c834-c431-41a2-8468-215b62e6a2e2",
+          "amount": 1
+        }
+      },
+      "respond": {
+        "status": 400,
+        "json": {
+          "code": "01000",
+          "message": "Transaction status is not preauth-approved!.\n Support ticket: 607112",
+          "route": "dashboard/main",
+          "responseId": "ae982e4fcf8b415b8ce0ad56383d2180",
+          "responseDetails": null
+        }
+      }
+    }
+  ],
+  "expected": {
+    "error": "provider_error",
+    "providerCode": "01000"
+  }
+}
