@@ -9,3 +9,4 @@
 /java export-ignore
 /dotnet export-ignore
 /python export-ignore
+/go export-ignore
