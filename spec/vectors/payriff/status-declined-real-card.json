@@ -1,0 +1,74 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "A real card on a Development (test-only) application: the page says \"Only test cards can be used in Development status\" and the order is DECLINED (failed)",
+  "operation": "getStatus",
+  "input": {
+    "paymentId": "af978749-8465-4d43-80b9-174644f9d1d3"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://api.payriff.com/api/v3/orders/af978749-8465-4d43-80b9-174644f9d1d3",
+        "headers": {
+          "authorization": "test-secret-key"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "code": "00000",
+          "message": "Operation performed successfully",
+          "route": "dashboard/main",
+          "responseId": "03ac83c632aa465fb0490ebb2a7c9cdf",
+          "responseDetails": null,
+          "payload": {
+            "orderId": "af978749-8465-4d43-80b9-174644f9d1d3",
+            "amount": 1,
+            "currencyType": "AZN",
+            "merchantName": "YeniBirja",
+            "operationType": "PURCHASE",
+            "paymentStatus": "DECLINED",
+            "auto": false,
+            "createdDate": "2026-10-27T05:42:32.716475",
+            "description": "manat purchase check",
+            "transactions": [
+              {
+                "uuid": "9d3208db-1c67-414d-a85c-33633339de9c",
+                "createdDate": "2026-10-27T05:43:28.689757",
+                "status": "DECLINED",
+                "channel": "KAPITAL_BANK",
+                "requestRrn": "0000000",
+                "pan": "411111******1111",
+                "paymentWay": "DIRECT",
+                "cardDetails": {
+                  "maskedPan": "411111******1111",
+                  "brand": "VISA",
+                  "uuid": "00000000-0000-4000-8000-000000000001",
+                  "cardHolderName": "Test Test",
+                  "bcryptedCardPan": "<redacted>",
+                  "hmacPan": "<redacted>"
+                },
+                "installment": {
+                  "type": null,
+                  "period": null
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "af978749-8465-4d43-80b9-174644f9d1d3",
+    "status": "failed",
+    "amount": {
+      "amount": 100,
+      "currency": "AZN"
+    }
+  }
+}

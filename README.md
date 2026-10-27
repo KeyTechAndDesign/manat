@@ -60,6 +60,8 @@ Learned on Payriff test mode (not in the docs):
 - Code `01000` covers several errors ("Order info not found", "Transaction status is not approved",
   "… not preauth-approved"); only the message tells them apart. Lookups answer HTTP 200, refund/capture HTTP 400.
 - Metadata comes back from `GET /orders/{id}` as one string (`"{orderRef=A-1001}"`), not as an object.
+- A real card on a Development application is refused ("Only test cards can be used in Development status") and
+  the order becomes `DECLINED`; nothing is charged.
 
 Learned on the Azericard test gateway (not in the docs):
 - The payment result goes to BACKREF server-to-server; nothing is posted through the browser.
