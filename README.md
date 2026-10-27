@@ -5,7 +5,7 @@
 One API for Azerbaijani online payment providers, in several languages.
 
 ```ts
-import {Manat, azn, kapitalBank} from 'manat';
+import {Manat, azn, kapitalBank} from '@keytd/manat';
 
 const pay = new Manat(kapitalBank({username: process.env.KB_USER!, password: process.env.KB_PASSWORD!}));
 
@@ -26,7 +26,7 @@ const {next} = await pay.createPayment({
 
 | Language      | Package                          | Status      |
 |---------------|----------------------------------|-------------|
-| TypeScript    | `npm i manat` ([`node/`](node))  | in progress |
+| TypeScript    | `npm i @keytd/manat` ([`node/`](node/README.md)) | in progress |
 | PHP           | `composer require keytd/manat` ([`php/`](php/README.md)) | in progress |
 | Java / Kotlin | Maven Central                    | planned     |
 | C#            | NuGet                            | planned     |
@@ -119,7 +119,7 @@ name and auth key, test or live.
   than the payment is reported as `partially_refunded`.
 
 ```ts
-import {Manat, azericard, epoint, goldenPay, kapitalBank, payriff} from 'manat';
+import {Manat, azericard, epoint, goldenPay, kapitalBank, payriff} from '@keytd/manat';
 
 const kapital = new Manat(kapitalBank({username, password, environment: 'test'}));
 const azc = new Manat(azericard({terminal, privateKey, gatewayPublicKey, merchantName, merchantUrl, environment: 'test'}));

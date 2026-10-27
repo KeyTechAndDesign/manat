@@ -1,5 +1,5 @@
 {
-  "name": "manat",
+  "name": "@keytd/manat",
   "version": "0.1.0",
   "description": "One API for Azerbaijani online payment providers.",
   "license": "MIT",
@@ -24,6 +24,9 @@
     }
   },
   "files": ["dist"],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=18"
   },

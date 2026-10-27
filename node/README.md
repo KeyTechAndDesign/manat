@@ -4,11 +4,11 @@ One API for Azerbaijani online payment providers: Kapital Bank, Azericard, Payri
 Node.js 18+, ESM and CommonJS, no runtime dependencies.
 
 ```bash
-npm i manat
+npm i @keytd/manat
 ```
 
 ```ts
-import {Manat, azn, kapitalBank} from 'manat';
+import {Manat, azn, kapitalBank} from '@keytd/manat';
 
 const pay = new Manat(kapitalBank({username: process.env.KB_USER!, password: process.env.KB_PASSWORD!}));
 
@@ -27,7 +27,7 @@ Store `paymentId` with the order. It is what `getStatus`, `refund`, `capture` an
 ## Providers
 
 ```ts
-import {azericard, epoint, goldenPay, kapitalBank, payriff} from 'manat';
+import {azericard, epoint, goldenPay, kapitalBank, payriff} from '@keytd/manat';
 
 kapitalBank({username, password, environment: 'test'});
 azericard({terminal, privateKey, gatewayPublicKey, merchantName, merchantUrl, environment: 'test'});
