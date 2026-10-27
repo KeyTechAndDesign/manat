@@ -6,7 +6,7 @@
     "biller": "BLR0001",
     "environment": "test"
   },
-  "description": "getStatus: 09 (issuer timeout) is failed; Yığım asks the merchant to cancel it",
+  "description": "getStatus: 09 (issuer timeout) is not final, the money may have moved; it stays pending until cancelled",
   "operation": "getStatus",
   "input": {
     "paymentId": "A-1001"
@@ -52,6 +52,6 @@
   ],
   "expected": {
     "paymentId": "A-1001",
-    "status": "failed"
+    "status": "pending"
   }
 }

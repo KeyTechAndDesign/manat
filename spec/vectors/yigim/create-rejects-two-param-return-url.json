@@ -1,0 +1,22 @@
+{
+  "provider": "yigim",
+  "config": {
+    "merchant": "manat_test",
+    "apiKey": "test-api-key",
+    "biller": "BLR0001",
+    "environment": "test"
+  },
+  "description": "createPayment: extra is cut at &, so a return URL with two query parameters is refused; nothing is sent",
+  "operation": "createPayment",
+  "input": {
+    "orderId": "A-1008",
+    "amount": {
+      "amount": 100,
+      "currency": "AZN"
+    },
+    "returnUrl": "https://shop.example.az/return?order=A-1008&lang=az"
+  },
+  "expected": {
+    "error": "invalid_request"
+  }
+}

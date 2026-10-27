@@ -22,12 +22,10 @@ import com.keytd.manat.internal.Form;
 import com.keytd.manat.internal.Http;
 import com.keytd.manat.internal.Values;
 
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -35,6 +33,7 @@ import java.util.regex.Pattern;
 /**
  * Yığım (MAGNET).
  * The webhook carries only `reference` and is unsigned, so verifyCallback re-reads the payment.
+ * 09 (issuer timeout) and S7 are not final: the money may have moved, so they stay pending until cancelled.
  */
 public final class Yigim implements PaymentProvider {
     private static final String NAME = "yigim";
@@ -154,6 +153,8 @@ public final class Yigim implements PaymentProvider {
         switch (status == null ? "" : status) {
             case "S0": // created, waiting for card data
             case "S2": // in progress
+            case "S7": // system malfunction
+            case "09": // issuer timeout: cancel it, then read the status again
                 return PaymentStatus.PENDING;
             case "S1": // pre-authorised DMS payment: charge or cancel within 30 days
                 return PaymentStatus.AUTHORIZED;
@@ -162,7 +163,6 @@ public final class Yigim implements PaymentProvider {
             case "S4": // reversed
                 return PaymentStatus.CANCELLED;
             case "S3": // unknown error
-            case "S7": // system malfunction
             case "01":
             case "02":
             case "03":
@@ -171,7 +171,6 @@ public final class Yigim implements PaymentProvider {
             case "06":
             case "07":
             case "08":
-            case "09": // issuer timeout: Yığım asks the merchant to call cancel
                 return PaymentStatus.FAILED;
             default:
                 throw new ManatError(ManatError.Code.PROVIDER_ERROR, "yigim: unknown payment status \"" + status + "\"", NAME, null, null, null, null);
@@ -181,6 +180,10 @@ public final class Yigim implements PaymentProvider {
     @Override
     public CreatePaymentResult createPayment(CreatePaymentRequest request) {
         requireReference(request.orderId());
+        // The return URL travels in `extra` (name=value;name=value), which the gateway also cuts at `&`.
+        if (request.returnUrl().contains("&") || request.returnUrl().contains(";")) {
+            throw new ManatError(ManatError.Code.INVALID_REQUEST, "yigim: returnUrl may carry at most one query parameter and no \";\"");
+        }
         Money amount = request.amount();
         Map<String, String> params = new LinkedHashMap<>();
         params.put("reference", request.orderId());
@@ -193,9 +196,11 @@ public final class Yigim implements PaymentProvider {
         }
         params.put("template", template);
         params.put("language", request.language() == null ? "az" : request.language().code());
+        // The gateway appends `&reference=…` to the callback URL as is, so it needs a query string.
         if (!isEmpty(request.callbackUrl())) {
-            params.put("callback", request.callbackUrl());
+            params.put("callback", request.callbackUrl().contains("?") ? request.callbackUrl() : request.callbackUrl() + "?");
         }
+        params.put("extra", "back-url=" + request.returnUrl() + ";fail-url=" + request.returnUrl());
         Map<String, Object> reply = call("payment/create", params);
         String url = Values.string(reply.get("url"));
         if (isEmpty(url)) {
@@ -232,28 +237,7 @@ public final class Yigim implements PaymentProvider {
         if (reply.get("amount") != null && !"".equals(reply.get("amount")) && currency != null) {
             amount = Values.money(reply.get("amount"), currency);
         }
-
-        // A refund keeps status 00 and is listed under `refund`.
-        List<Object> refunds = Values.list(reply.get("refund"));
-        Money refundedAmount = null;
-        if (status == PaymentStatus.PAID && refunds != null && !refunds.isEmpty()) {
-            boolean readable = amount != null;
-            for (Object entry : refunds) {
-                Object value = Values.get(entry, "amount");
-                readable &= value instanceof String || value instanceof Long || value instanceof BigDecimal;
-            }
-            if (readable) {
-                long refunded = 0;
-                for (Object entry : refunds) {
-                    refunded += Values.money(Values.get(entry, "amount"), amount.currency()).amount();
-                }
-                refundedAmount = Money.of(refunded, amount.currency());
-                status = refunded >= amount.amount() ? PaymentStatus.REFUNDED : PaymentStatus.PARTIALLY_REFUNDED;
-            } else {
-                status = PaymentStatus.REFUNDED;
-            }
-        }
-        return new PaymentState(paymentId, status, amount, refundedAmount, null, reply);
+        return new PaymentState(paymentId, status, amount, null, null, reply);
     }
 
     @Override
@@ -294,8 +278,8 @@ public final class Yigim implements PaymentProvider {
         // Replies may be nested under `response`.
         Map<String, Object> data = Values.map(response.data);
         Map<String, Object> reply = data != null && Values.map(data.get("response")) != null ? Values.map(data.get("response")) : data;
-        Long code = reply == null ? null : Values.integer(reply.get("code"));
-        if (code == null || !(reply.get("code") instanceof Long)) {
+        Long code = reply == null ? null : code(reply);
+        if (code == null) {
             throw new ManatError(ManatError.Code.PROVIDER_ERROR, "yigim: unexpected response (HTTP " + response.status + ")", NAME, null, null, response.data, null);
         }
         if (response.status >= 400 || code != OK) {
@@ -305,11 +289,20 @@ public final class Yigim implements PaymentProvider {
     }
 
     private static ManatError error(String what, Map<String, Object> reply) {
-        Object code = reply.get("code");
+        Long code = code(reply);
         String message = Values.truthy(reply.get("message")) ? Values.text(reply.get("message")) : null;
-        boolean fromProvider = code instanceof Long && (Long) code != OK;
+        boolean fromProvider = code != null && code != OK;
         return new ManatError(ManatError.Code.PROVIDER_ERROR, "yigim: " + (fromProvider && message != null ? message : what), NAME,
                 fromProvider ? code.toString() : null, fromProvider ? message : null, reply, null);
+    }
+
+    /** {@code code} comes as 0 or "0". */
+    private static Long code(Map<String, Object> reply) {
+        Object code = reply.get("code");
+        if (code instanceof Long) {
+            return (Long) code;
+        }
+        return code instanceof String && ((String) code).matches("-?\\d+") ? Long.valueOf((String) code) : null;
     }
 
     private static Map<String, String> withAmount(String reference, Money amount) {

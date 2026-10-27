@@ -54,7 +54,7 @@
         "status": "S7"
       },
       "expected": {
-        "status": "failed"
+        "status": "pending"
       }
     },
     {
@@ -134,7 +134,7 @@
         "status": "09"
       },
       "expected": {
-        "status": "failed"
+        "status": "pending"
       }
     }
   ]

@@ -6,7 +6,7 @@
     "biller": "BLR0001",
     "environment": "test"
   },
-  "description": "refund: a partial amount is sent in qəpik; the refund list decides the status",
+  "description": "refund: a partial amount is sent in qəpik; less than paid is partially_refunded",
   "operation": "refund",
   "input": {
     "paymentId": "A-1001",
@@ -66,11 +66,7 @@
           "approval": "016355",
           "3ds": "00",
           "extra": [],
-          "refund": [
-            {
-              "amount": "10.00"
-            }
-          ],
+          "refund": [],
           "transactionList": [],
           "status": "00",
           "code": 0,

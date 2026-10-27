@@ -1,6 +1,7 @@
 /**
  * Yığım (MAGNET).
  * The webhook carries only `reference` and is unsigned, so verifyCallback re-reads the payment.
+ * 09 (issuer timeout) and S7 are not final: the money may have moved, so they stay pending until cancelled.
  */
 import {ManatError} from '../errors.js';
 import {HttpClient, type HttpOptions} from '../http.js';
@@ -45,14 +46,13 @@ const DEFAULT_TEMPLATE = 'TPL0001';
 const REFERENCE = /^[^\s\u0000-\u001f]{1,255}$/;
 
 interface YigimReply {
-    code?: number;
+    code?: number | string;
     message?: string;
     url?: string;
     reference?: string;
     amount?: string | number;
     currency?: string;
     status?: string;
-    refund?: unknown;
     [key: string]: unknown;
 }
 
@@ -61,6 +61,8 @@ export function mapYigimStatus(status: string | undefined): PaymentStatus {
     switch (status) {
         case 'S0': // created, waiting for card data
         case 'S2': // in progress
+        case 'S7': // system malfunction
+        case '09': // issuer timeout: cancel it, then read the status again
             return 'pending';
         case 'S1': // pre-authorised DMS payment: charge or cancel within 30 days
             return 'authorized';
@@ -69,7 +71,6 @@ export function mapYigimStatus(status: string | undefined): PaymentStatus {
         case 'S4': // reversed
             return 'cancelled';
         case 'S3': // unknown error
-        case 'S7': // system malfunction
         case '01': // refer to issuer
         case '02': // expired card
         case '03': // invalid amount
@@ -78,7 +79,6 @@ export function mapYigimStatus(status: string | undefined): PaymentStatus {
         case '06': // suspected fraud
         case '07': // exceeds withdrawal limit
         case '08': // format error
-        case '09': // issuer timeout: Yığım asks the merchant to call cancel
             return 'failed';
         default:
             throw new ManatError('provider_error', `yigim: unknown payment status "${status}"`, {provider: 'yigim'});
@@ -101,6 +101,10 @@ export class YigimProvider implements PaymentProvider {
 
     async createPayment(request: CreatePaymentRequest): Promise<CreatePaymentResult> {
         assertReference(request.orderId);
+        // The return URL travels in `extra` (name=value;name=value), which the gateway also cuts at `&`.
+        if (/[&;]/.test(request.returnUrl)) {
+            throw new ManatError('invalid_request', 'yigim: returnUrl may carry at most one query parameter and no ";"');
+        }
         const params: Record<string, string> = {
             reference: request.orderId,
             type: request.intent === 'authorize' ? 'DMS' : 'SMS',
@@ -111,7 +115,9 @@ export class YigimProvider implements PaymentProvider {
         if (request.description) params.description = request.description;
         params.template = this.config.template ?? DEFAULT_TEMPLATE;
         params.language = request.language ?? 'az';
-        if (request.callbackUrl) params.callback = request.callbackUrl;
+        // The gateway appends `&reference=…` to the callback URL as is, so it needs a query string.
+        if (request.callbackUrl) params.callback = request.callbackUrl.includes('?') ? request.callbackUrl : `${request.callbackUrl}?`;
+        params.extra = `back-url=${request.returnUrl};fail-url=${request.returnUrl}`;
         const reply = await this.call('payment/create', params);
         if (!reply.url) throw this.error('payment page URL is missing', reply);
         return {paymentId: request.orderId, status: 'pending', next: {type: 'redirect', url: reply.url}, raw: reply};
@@ -133,24 +139,9 @@ export class YigimProvider implements PaymentProvider {
         assertReference(paymentId);
         const reply = await this.call('payment/status', {reference: paymentId});
         if (reply.reference && reply.reference !== paymentId) throw this.error(`status is for payment ${reply.reference}, not ${paymentId}`, reply);
-        let status = mapYigimStatus(reply.status);
-        const state: PaymentState = {paymentId, status, raw: reply};
+        const state: PaymentState = {paymentId, status: mapYigimStatus(reply.status), raw: reply};
         const currency = typeof reply.currency === 'string' ? currencyFromNumeric(reply.currency) : undefined;
         if (reply.amount !== undefined && reply.amount !== '' && currency) state.amount = fromDecimal(String(reply.amount), currency);
-
-        // A refund keeps status 00 and is listed under `refund`.
-        const refunds = Array.isArray(reply.refund) ? reply.refund : [];
-        if (status === 'paid' && refunds.length > 0) {
-            const amounts = refunds.map((entry) => (entry && typeof entry === 'object' ? (entry as {amount?: unknown}).amount : undefined));
-            if (state.amount && amounts.every((amount) => typeof amount === 'string' || typeof amount === 'number')) {
-                const refunded = amounts.reduce<number>((sum, amount) => sum + fromDecimal(String(amount), state.amount!.currency).amount, 0);
-                state.refundedAmount = {amount: refunded, currency: state.amount.currency};
-                status = refunded >= state.amount.amount ? 'refunded' : 'partially_refunded';
-            } else {
-                status = 'refunded';
-            }
-            state.status = status;
-        }
         return state;
     }
 
@@ -178,15 +169,15 @@ export class YigimProvider implements PaymentProvider {
             headers: {'x-merchant': this.config.merchant, 'x-api-key': this.config.apiKey, 'x-type': 'JSON'},
         });
         const reply = unwrap(data);
-        if (!reply || typeof reply.code !== 'number') {
+        if (!reply || code(reply) === undefined) {
             throw new ManatError('provider_error', `yigim: unexpected response (HTTP ${status})`, {provider: this.name, raw: data});
         }
-        if (status >= 400 || reply.code !== OK) throw this.error(`HTTP ${status}`, reply);
+        if (status >= 400 || code(reply) !== OK) throw this.error(`HTTP ${status}`, reply);
         return reply;
     }
 
     private error(what: string, reply: YigimReply): ManatError {
-        const fromProvider = typeof reply.code === 'number' && reply.code !== OK;
+        const fromProvider = code(reply) !== undefined && code(reply) !== OK;
         return new ManatError('provider_error', `yigim: ${fromProvider && reply.message ? reply.message : what}`, {
             provider: this.name,
             ...(fromProvider ? {providerCode: String(reply.code)} : {}),
@@ -198,6 +189,12 @@ export class YigimProvider implements PaymentProvider {
 
 export function yigim(config: YigimConfig, options?: HttpOptions): YigimProvider {
     return new YigimProvider(config, options);
+}
+
+/** `code` comes as 0 or "0". */
+function code(reply: YigimReply): number | undefined {
+    if (typeof reply.code === 'number') return reply.code;
+    return typeof reply.code === 'string' && /^-?\d+$/.test(reply.code) ? Number(reply.code) : undefined;
 }
 
 /** Replies may be nested under `response`. */

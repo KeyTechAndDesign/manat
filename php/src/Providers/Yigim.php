@@ -21,6 +21,7 @@ use Manat\RefundResult;
 /**
  * Yığım (MAGNET).
  * The webhook carries only `reference` and is unsigned, so verifyCallback re-reads the payment.
+ * 09 (issuer timeout) and S7 are not final: the money may have moved, so they stay pending until cancelled.
  */
 final class Yigim implements PaymentProvider
 {
@@ -64,12 +65,11 @@ final class Yigim implements PaymentProvider
     public static function mapStatus(?string $status): string
     {
         return match ($status) {
-            'S0', 'S2' => PaymentStatus::PENDING, // created, waiting for card data / in progress
+            'S0', 'S2', 'S7', '09' => PaymentStatus::PENDING, // waiting for card data, in progress, malfunction, issuer timeout
             'S1' => PaymentStatus::AUTHORIZED, // pre-authorised DMS payment: charge or cancel within 30 days
             '00' => PaymentStatus::PAID,
             'S4' => PaymentStatus::CANCELLED, // reversed
-            // S3 unknown error, S7 system malfunction, 01–08 declines, 09 issuer timeout (Yığım asks the merchant to cancel)
-            'S3', 'S7', '01', '02', '03', '04', '05', '06', '07', '08', '09' => PaymentStatus::FAILED,
+            'S3', '01', '02', '03', '04', '05', '06', '07', '08' => PaymentStatus::FAILED, // unknown error, declines
             default => throw new ManatError(ManatError::PROVIDER_ERROR, 'yigim: unknown payment status "' . ($status ?? 'null') . '"', provider: 'yigim'),
         };
     }
@@ -77,6 +77,10 @@ final class Yigim implements PaymentProvider
     public function createPayment(array $request): CreatePaymentResult
     {
         self::assertReference($request['orderId']);
+        // The return URL travels in `extra` (name=value;name=value), which the gateway also cuts at `&`.
+        if (preg_match('/[&;]/', $request['returnUrl'])) {
+            throw new ManatError(ManatError::INVALID_REQUEST, 'yigim: returnUrl may carry at most one query parameter and no ";"');
+        }
         /** @var Money $amount */
         $amount = $request['amount'];
         $params = [
@@ -91,9 +95,11 @@ final class Yigim implements PaymentProvider
         }
         $params['template'] = $this->config['template'] ?? self::DEFAULT_TEMPLATE;
         $params['language'] = $request['language'] ?? 'az';
+        // The gateway appends `&reference=…` to the callback URL as is, so it needs a query string.
         if (!empty($request['callbackUrl'])) {
-            $params['callback'] = $request['callbackUrl'];
+            $params['callback'] = str_contains($request['callbackUrl'], '?') ? $request['callbackUrl'] : $request['callbackUrl'] . '?';
         }
+        $params['extra'] = "back-url={$request['returnUrl']};fail-url={$request['returnUrl']}";
         $reply = $this->call('payment/create', $params);
         if (empty($reply['url']) || !is_string($reply['url'])) {
             throw $this->error('payment page URL is missing', $reply);
@@ -127,24 +133,7 @@ final class Yigim implements PaymentProvider
             $amount = Money::fromDecimal(is_string($reply['amount']) ? $reply['amount'] : Json::number($reply['amount']), $currency);
         }
 
-        // A refund keeps status 00 and is listed under `refund`.
-        $refunds = is_array($reply['refund'] ?? null) ? $reply['refund'] : [];
-        $refundedAmount = null;
-        if ($status === PaymentStatus::PAID && $refunds !== []) {
-            $amounts = array_map(static fn ($entry) => is_array($entry) ? ($entry['amount'] ?? null) : null, $refunds);
-            $readable = array_filter($amounts, static fn ($value) => is_string($value) || is_int($value) || is_float($value));
-            if ($amount !== null && count($readable) === count($amounts)) {
-                $refunded = 0;
-                foreach ($amounts as $value) {
-                    $refunded += Money::fromDecimal(is_string($value) ? $value : Json::number($value), $amount->currency)->amount;
-                }
-                $refundedAmount = new Money($refunded, $amount->currency);
-                $status = $refunded >= $amount->amount ? PaymentStatus::REFUNDED : PaymentStatus::PARTIALLY_REFUNDED;
-            } else {
-                $status = PaymentStatus::REFUNDED;
-            }
-        }
-        return new PaymentState($paymentId, $status, $reply, $amount, $refundedAmount);
+        return new PaymentState($paymentId, $status, $reply, $amount);
     }
 
     public function refund(array $request): RefundResult
@@ -180,10 +169,10 @@ final class Yigim implements PaymentProvider
         [$status, $data] = $this->http->json('GET', "{$this->baseUrl}/{$command}?" . Form::encode($params), $headers);
         // Replies may be nested under `response`.
         $reply = is_array($data) && is_array($data['response'] ?? null) ? $data['response'] : $data;
-        if (!is_array($reply) || !is_int($reply['code'] ?? null)) {
+        if (!is_array($reply) || self::code($reply) === null) {
             throw new ManatError(ManatError::PROVIDER_ERROR, "yigim: unexpected response (HTTP {$status})", provider: 'yigim', raw: $data);
         }
-        if ($status >= 400 || $reply['code'] !== self::OK) {
+        if ($status >= 400 || self::code($reply) !== self::OK) {
             throw $this->error("HTTP {$status}", $reply);
         }
         return $reply;
@@ -191,9 +180,9 @@ final class Yigim implements PaymentProvider
 
     private function error(string $what, array $reply): ManatError
     {
-        $code = $reply['code'] ?? null;
+        $code = self::code($reply);
         $message = isset($reply['message']) && $reply['message'] !== '' ? (string) $reply['message'] : null;
-        $fromProvider = is_int($code) && $code !== self::OK;
+        $fromProvider = $code !== null && $code !== self::OK;
         return new ManatError(
             ManatError::PROVIDER_ERROR,
             'yigim: ' . ($fromProvider && $message !== null ? $message : $what),
@@ -202,6 +191,16 @@ final class Yigim implements PaymentProvider
             providerMessage: $fromProvider ? $message : null,
             raw: $reply,
         );
+    }
+
+    /** `code` comes as 0 or "0". */
+    private static function code(array $reply): ?int
+    {
+        $code = $reply['code'] ?? null;
+        if (is_int($code)) {
+            return $code;
+        }
+        return is_string($code) && preg_match('/^-?\d+$/', $code) ? (int) $code : null;
     }
 
     /** @return array<string, string> */
