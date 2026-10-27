@@ -1,5 +1,7 @@
 # Manat
 
+[![CI](https://github.com/KeyTechAndDesign/manat/actions/workflows/ci.yml/badge.svg)](https://github.com/KeyTechAndDesign/manat/actions/workflows/ci.yml)
+
 One API for Azerbaijani online payment providers, in several languages.
 
 ```ts
