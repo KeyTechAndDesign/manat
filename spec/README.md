@@ -165,9 +165,10 @@ not provider keys.
   opaque `providerRef` string on `PaymentEvent`; merchants store it and pass it back
   to `refund`/`capture`/`cancel` unchanged. Its format is adapter-internal but must be
   identical across languages (it is pinned by the vectors).
-- **Unsigned callbacks** (Kapital Bank redirect, Payriff webhook, Epoint browser redirect, GoldenPay redirect, Yığım webhook) are never trusted:
+- **Unsigned callbacks** (Kapital Bank redirect, Payriff webhook, GoldenPay redirect, Yığım webhook) are never trusted:
   `verifyCallback` only takes the payment id from them and re-reads the payment from
-  the provider's API.
+  the provider's API. Epoint's browser redirect is rejected with `invalid_signature`;
+  the merchant calls `getStatus` instead.
 - **Signed JSON payloads** (Epoint): the request body is base64 of a JSON object, so every language must
   produce the same bytes: compact JSON, keys in the order the vectors show, `/` and non-ASCII not escaped
   (PHP `JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_LINE_TERMINATORS`, Python

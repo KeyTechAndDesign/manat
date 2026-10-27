@@ -7,11 +7,11 @@ Java 11+, works from Kotlin as is, no runtime dependencies (java.net.http, java.
 <dependency>
     <groupId>com.keytd</groupId>
     <artifactId>manat</artifactId>
-    <version>0.2.1</version>
+    <version>0.2.2</version>
 </dependency>
 ```
 
-Gradle: `implementation("com.keytd:manat:0.2.1")`
+Gradle: `implementation("com.keytd:manat:0.2.2")`
 
 ```java
 import com.keytd.manat.*;
@@ -59,7 +59,8 @@ Yigim.builder().merchant(merchant).apiKey(apiKey).biller(biller).environment(Env
 ## Callbacks
 
 Pass what your handler received. Signed callbacks are verified in constant time; unsigned redirects and
-webhooks are never trusted: the adapter re-reads the payment from the provider's API.
+webhooks are never trusted: the adapter re-reads the payment from the provider's API. Epoint's browser redirect
+is unsigned and rejected with `invalid_signature`; call `getStatus` there.
 
 ```java
 PaymentEvent event = pay.verifyCallback(IncomingCallback.of(request.getMethod())

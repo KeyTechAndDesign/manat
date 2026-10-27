@@ -13,8 +13,8 @@ using KeyTD.Manat.Providers;
 
 var pay = new ManatClient(new KapitalBankProvider(new KapitalBankOptions
 {
-    Username = config["KB_USER"],
-    Password = config["KB_PASSWORD"],
+    Username = config["KB_USER"]!,
+    Password = config["KB_PASSWORD"]!,
 }));
 
 var result = await pay.CreatePaymentAsync(new CreatePaymentRequest
@@ -39,7 +39,7 @@ Store `result.PaymentId` with the order. It is what `GetStatusAsync`, `RefundAsy
 new KapitalBankProvider(new KapitalBankOptions { Username = user, Password = password, Environment = ProviderEnvironment.Test });
 new AzericardProvider(new AzericardOptions
 {
-    Terminal = terminal, PrivateKey = File.ReadAllText("merchant.pem"), GatewayPublicKey = File.ReadAllText("gateway.pem"),
+    Terminal = terminal, PrivateKey = System.IO.File.ReadAllText("merchant.pem"), GatewayPublicKey = System.IO.File.ReadAllText("gateway.pem"),
     MerchantName = "My Shop", MerchantUrl = "https://shop.az", Environment = ProviderEnvironment.Test,
 });
 new PayriffProvider(new PayriffOptions { SecretKey = secretKey });
@@ -62,7 +62,8 @@ new YigimProvider(new YigimOptions { Merchant = merchant, ApiKey = apiKey, Bille
 ## Callbacks
 
 Pass what your handler received. Signed callbacks are verified in constant time; unsigned redirects and
-webhooks are never trusted: the adapter re-reads the payment from the provider's API.
+webhooks are never trusted: the adapter re-reads the payment from the provider's API. Epoint's browser redirect
+is unsigned and rejected with `invalid_signature`; call `GetStatusAsync` there.
 
 ```csharp
 using var reader = new StreamReader(Request.Body);

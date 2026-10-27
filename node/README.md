@@ -51,7 +51,8 @@ yigim({merchant, apiKey, biller, environment: 'test'});
 ## Callbacks
 
 Pass what your handler received. Signed callbacks are verified in constant time; unsigned redirects and
-webhooks are never trusted: the adapter re-reads the payment from the provider's API.
+webhooks are never trusted: the adapter re-reads the payment from the provider's API. Epoint's browser redirect
+is unsigned and rejected with `invalid_signature`; call `getStatus` there.
 
 ```ts
 const event = await pay.verifyCallback({method: req.method, query: req.query, body: req.body, headers: req.headers});

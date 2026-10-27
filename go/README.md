@@ -11,6 +11,9 @@ go get github.com/KeyTechAndDesign/manat/go
 import manat "github.com/KeyTechAndDesign/manat/go"
 
 kb, err := manat.NewKapitalBank(manat.KapitalBankConfig{Username: os.Getenv("KB_USER"), Password: os.Getenv("KB_PASSWORD")})
+if err != nil {
+	return err
+}
 pay := manat.New(kb)
 
 amount, _ := manat.AZN("25.50") // 2550 qəpik; floats are never accepted
@@ -19,6 +22,9 @@ res, err := pay.CreatePayment(ctx, manat.CreatePaymentRequest{
 	Amount:    amount,
 	ReturnURL: "https://shop.az/payment/return",
 })
+if err != nil {
+	return err
+}
 // res.Next.Type is "redirect" (send the browser to res.Next.URL) or, for Azericard, "form" (POST res.Next.Fields).
 ```
 
@@ -46,15 +52,20 @@ manat.NewYigim(manat.YigimConfig{Merchant: m, APIKey: key, Biller: b, Environmen
 | Yığım        | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 `pay.Supports(manat.CapCapture)` tells you at runtime; an unsupported call returns `unsupported_operation`. Every config
-also takes `BaseURL`, `HTTPClient` (any `Do(*http.Request)`, such as your `*http.Client`) and `Timeout` (default 30s).
+also takes `BaseURL` (`GatewayURL` for Azericard), `HTTPClient` (any `Do(*http.Request)`, such as your `*http.Client`) and `Timeout` (default 30s).
 
 ## Callbacks
 
 Signed callbacks are verified in constant time; unsigned redirects and webhooks are never trusted: the adapter re-reads
-the payment from the provider's API.
+the payment from the provider's API. Epoint's browser redirect is unsigned and rejected with `invalid_signature`; call
+`GetStatus` there.
 
 ```go
 cb, err := manat.CallbackFromRequest(r)
+if err != nil {
+	http.Error(w, "bad request", http.StatusBadRequest)
+	return
+}
 event, err := pay.VerifyCallback(r.Context(), cb)
 if err == nil && event.Status == manat.StatusPaid {
 	// fulfil order event.PaymentID; for Azericard store event.ProviderRef for refunds

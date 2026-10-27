@@ -9,10 +9,16 @@ import (
 // Client is the provider-neutral facade. It validates input once, then delegates to the adapter, so every provider
 // gets the same checks and the same errors.
 //
-//	kb, _ := manat.NewKapitalBank(manat.KapitalBankConfig{Username: user, Password: password})
+//	kb, err := manat.NewKapitalBank(manat.KapitalBankConfig{Username: user, Password: password})
+//	if err != nil {
+//		return err
+//	}
 //	pay := manat.New(kb)
 //	amount, _ := manat.AZN("25.50")
 //	res, err := pay.CreatePayment(ctx, manat.CreatePaymentRequest{OrderID: "A-1001", Amount: amount, ReturnURL: returnURL})
+//	if err != nil {
+//		return err
+//	}
 //	http.Redirect(w, r, res.Next.URL, http.StatusFound)
 type Client struct {
 	Provider Provider

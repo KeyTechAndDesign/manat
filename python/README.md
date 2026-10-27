@@ -8,6 +8,8 @@ pip install keytd-manat
 ```
 
 ```python
+import os
+
 from manat import Manat, azn
 from manat.providers import KapitalBank
 
@@ -47,7 +49,8 @@ Every provider takes `base_url` (or `gateway_url`), `transport` and `timeout` ke
 ## Callbacks
 
 Pass what your handler received, with the raw body. Unsigned redirects and webhooks are never trusted: the adapter
-re-reads the payment from the provider's API.
+re-reads the payment from the provider's API. Epoint's browser redirect is unsigned and rejected with
+`invalid_signature`; call `get_status` there.
 
 ```python
 event = pay.verify_callback(request.method, query=request.args, body=request.get_data(as_text=True))

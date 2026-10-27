@@ -6,11 +6,11 @@
 
     <groupId>com.keytd</groupId>
     <artifactId>manat</artifactId>
-    <version>0.2.1</version>
+    <version>0.2.2</version>
     <packaging>jar</packaging>
 
     <name>Manat</name>
-    <description>One API for Azerbaijani online payment providers: Kapital Bank, Azericard, Payriff, Epoint, GoldenPay.</description>
+    <description>One API for Azerbaijani online payment providers: Kapital Bank, Azericard, Payriff, Epoint, GoldenPay and Yığım.</description>
     <url>https://github.com/KeyTechAndDesign/manat</url>
 
     <licenses>
