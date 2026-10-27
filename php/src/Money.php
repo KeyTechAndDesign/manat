@@ -24,13 +24,19 @@ final class Money
         }
     }
 
-    /** Money::azn('25.50') → 2550 AZN. */
-    public static function azn(string|int $value): self
+    /**
+     * Money::azn('25.50') → 2550 AZN; whole manats may be an int. The float type is in the signature only so that
+     * callers without strict_types get an error for 25.5 instead of PHP silently turning it into 25.
+     */
+    public static function azn(string|int|float $value): self
     {
+        if (is_float($value)) {
+            throw new ManatError(ManatError::INVALID_REQUEST, "{$value} is a float; pass the amount as a string such as \"25.50\"");
+        }
         return self::fromDecimal($value, 'AZN');
     }
 
-    /** "25.5" / "25.50" / 25 → 2550. Rejects more decimals than the currency has. */
+    /** "25.5" / "25.50" / 25 → 2550. Rejects more decimals than the currency has; floats are for amounts read from provider JSON. */
     public static function fromDecimal(string|int|float $value, string $currency): self
     {
         $text = is_float($value) ? Json::number($value) : trim((string) $value);
