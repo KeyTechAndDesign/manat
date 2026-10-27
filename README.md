@@ -18,13 +18,18 @@ const {next} = await pay.createPayment({
 - Amounts are integers in minor units (`azn('25.50')` → `{amount: 2550, currency: 'AZN'}`), never floats.
 - Every provider exposes the same operations: `createPayment`, `verifyCallback`, `getStatus`, `refund`, plus `capture`/`cancel` where the provider supports them.
 - Callbacks are verified with constant-time signature checks; an unsigned redirect is never trusted on its own.
-- Built only from providers' public developer documentation.
+- No runtime dependencies: each package uses only its language's standard library.
+- Built from providers' public developer documentation; where there is none (GoldenPay), from community SDKs
+  checked against the provider's test host.
 
-| Language   | Package                      | Status      |
-|------------|------------------------------|-------------|
-| TypeScript | `npm i manat`                | in progress |
-| PHP        | `composer require keytd/manat` | planned   |
-| Python     | `pip install manat`          | planned     |
+| Language      | Package                          | Status      |
+|---------------|----------------------------------|-------------|
+| TypeScript    | `npm i manat` ([`node/`](node))  | in progress |
+| PHP           | `composer require keytd/manat` ([`php/`](php/README.md)) | in progress |
+| Java / Kotlin | Maven Central                    | planned     |
+| C#            | NuGet                            | planned     |
+| Python        | `pip install manat`              | planned     |
+| Go            | `go get`                         | planned     |
 
 The shared interface and the cross-language test vectors live in [`spec/`](spec/README.md).
 
