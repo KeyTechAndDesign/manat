@@ -28,7 +28,7 @@ const {next} = await pay.createPayment({
 |---------------|----------------------------------|-------------|
 | TypeScript    | [`npm i @keytd/manat`](https://www.npmjs.com/package/@keytd/manat) ([docs](node/README.md)) | 0.1.0 |
 | PHP           | [`composer require keytd/manat`](https://packagist.org/packages/keytd/manat) ([docs](php/README.md)) | 0.1.0 |
-| Java / Kotlin | Maven Central                    | planned     |
+| Java / Kotlin | `com.keytd:manat` ([docs](java/README.md)) | ready, not yet on Maven Central |
 | C#            | NuGet                            | planned     |
 | Python        | `pip install manat`              | planned     |
 | Go            | `go get`                         | planned     |

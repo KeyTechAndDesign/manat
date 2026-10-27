@@ -6,3 +6,4 @@
 /spec export-ignore
 /php/tests export-ignore
 /php/phpunit.xml.dist export-ignore
+/java export-ignore
