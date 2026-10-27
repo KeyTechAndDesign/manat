@@ -10,6 +10,10 @@ use Manat\ManatError;
 /** @internal Wraps a Transport: encodes bodies, applies the timeout and turns failures into ManatError. */
 final class HttpClient
 {
+    public const VERSION = '0.2.1';
+    /** Sent with every request so providers can tell the SDK apart from generic clients. */
+    public const USER_AGENT = 'keytd-manat/' . self::VERSION . ' (php; +https://github.com/KeyTechAndDesign/manat)';
+
     private readonly Transport $transport;
     private readonly float $timeout;
 
@@ -27,7 +31,7 @@ final class HttpClient
      */
     public function send(string $method, string $url, array $headers = [], mixed $json = null, ?array $form = null): HttpResponse
     {
-        $headers = array_change_key_case($headers, CASE_LOWER);
+        $headers = array_change_key_case($headers, CASE_LOWER) + ['user-agent' => self::USER_AGENT];
         $body = null;
         if ($form !== null) {
             $body = Form::encode($form);

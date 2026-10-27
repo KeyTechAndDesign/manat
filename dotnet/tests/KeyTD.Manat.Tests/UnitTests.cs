@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -137,6 +138,41 @@ namespace KeyTD.Manat.Tests
             var client = new ManatClient(new FakeProvider());
             await ExpectCode(ManatErrorCode.InvalidRequest, () => client.GetStatusAsync(""));
             await ExpectCode(ManatErrorCode.InvalidRequest, () => client.RefundAsync(new RefundRequest()));
+        }
+    }
+
+    public class UserAgentTest
+    {
+        private sealed class Capture : HttpMessageHandler
+        {
+            public string? UserAgent { get; private set; }
+
+            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            {
+                UserAgent = request.Headers.TryGetValues("user-agent", out var values) ? string.Join(" ", values) : null;
+                return Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.OK) { Content = new StringContent("{}") });
+            }
+        }
+
+        [Fact]
+        public async Task IdentifiesTheSdkWithThePackageVersion()
+        {
+            var capture = new Capture();
+            var http = new Internal.Http("test", new Providers.PayriffOptions { SecretKey = "k", HttpClient = new HttpClient(capture) });
+            await http.JsonAsync("GET", "https://example.com", null, null, null, CancellationToken.None);
+            var project = File.ReadAllText(Path.Combine(Root(), "src", "KeyTD.Manat", "KeyTD.Manat.csproj"));
+            var version = Regex.Match(project, "<Version>([^<]+)</Version>").Groups[1].Value;
+            Assert.Equal($"keytd-manat/{version} (dotnet; +https://github.com/KeyTechAndDesign/manat)", capture.UserAgent);
+        }
+
+        private static string Root()
+        {
+            var dir = new DirectoryInfo(AppContext.BaseDirectory);
+            while (dir != null && !File.Exists(Path.Combine(dir.FullName, "src", "KeyTD.Manat", "KeyTD.Manat.csproj")))
+            {
+                dir = dir.Parent;
+            }
+            return dir!.FullName;
         }
     }
 

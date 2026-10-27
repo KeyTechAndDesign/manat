@@ -110,7 +110,11 @@ class UserAgentTest(unittest.TestCase):
                 return HttpResponse(200, "{}")
 
         Http("test", Capture(), 5).json("GET", "https://example.com")
-        self.assertRegex(sent["user-agent"], r"^keytd-manat/\d+\.\d+\.\d+ ")
+        from manat import __version__
+
+        self.assertEqual(f"keytd-manat/{__version__} (python; +https://github.com/KeyTechAndDesign/manat)", sent["user-agent"])
+        pyproject = (Path(__file__).resolve().parents[1] / "pyproject.toml").read_text("utf-8")
+        self.assertIn(f'version = "{__version__}"', pyproject)
 
 
 class NoDependenciesTest(unittest.TestCase):

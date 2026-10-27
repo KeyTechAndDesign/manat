@@ -18,6 +18,12 @@ type Doer interface {
 
 const defaultTimeout = 30 * time.Second
 
+// Version is this module's release.
+const Version = "0.2.1"
+
+// userAgent is sent with every request so providers can tell the SDK apart from generic clients.
+const userAgent = "keytd-manat/" + Version + " (go; +https://github.com/KeyTechAndDesign/manat)"
+
 var defaultClient = &http.Client{
 	CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse },
 }
@@ -56,6 +62,7 @@ func (t transport) send(ctx context.Context, method, url string, headers []pair,
 	if err != nil {
 		return 0, "", &Error{Code: InvalidRequest, Message: fmt.Sprintf("%s: %s %s %v", t.provider, method, url, err), Provider: t.provider, Err: err}
 	}
+	req.Header.Set("user-agent", userAgent)
 	for _, h := range headers {
 		req.Header.Set(h.k, h.v)
 	}

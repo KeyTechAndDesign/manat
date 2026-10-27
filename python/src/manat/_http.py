@@ -11,7 +11,7 @@ from ._version import VERSION
 from .errors import NETWORK_ERROR, ManatError
 
 
-USER_AGENT = f"keytd-manat/{VERSION} (+https://github.com/KeyTechAndDesign/manat)"
+USER_AGENT = f"keytd-manat/{VERSION} (python; +https://github.com/KeyTechAndDesign/manat)"
 
 
 @dataclass(frozen=True)

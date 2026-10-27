@@ -1,4 +1,5 @@
 import {ManatError} from './errors.js';
+import {USER_AGENT} from './version.js';
 
 export type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
 
@@ -34,7 +35,7 @@ export class HttpClient {
     }
 
     async send(request: HttpRequest): Promise<HttpResponse> {
-        const headers: Record<string, string> = {...request.headers};
+        const headers: Record<string, string> = {'user-agent': USER_AGENT, ...request.headers};
         let body: string | undefined;
         if (request.body instanceof URLSearchParams) {
             body = request.body.toString();

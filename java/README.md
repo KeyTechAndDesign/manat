@@ -7,11 +7,11 @@ Java 11+, works from Kotlin as is, no runtime dependencies (java.net.http, java.
 <dependency>
     <groupId>com.keytd</groupId>
     <artifactId>manat</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
 </dependency>
 ```
 
-Gradle: `implementation("com.keytd:manat:0.2.0")`
+Gradle: `implementation("com.keytd:manat:0.2.1")`
 
 ```java
 import com.keytd.manat.*;

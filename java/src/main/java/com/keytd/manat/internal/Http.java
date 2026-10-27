@@ -14,6 +14,9 @@ import java.util.Map;
 /** Wraps a Transport for one adapter: encodes bodies, applies the timeout and turns failures into ManatError. */
 public final class Http {
     public static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(30);
+    public static final String VERSION = "0.2.1";
+    /** Sent with every request so providers can tell the SDK apart from generic clients. */
+    public static final String USER_AGENT = "keytd-manat/" + VERSION + " (java; +https://github.com/KeyTechAndDesign/manat)";
 
     private final String provider;
     private final Transport transport;
@@ -42,6 +45,7 @@ public final class Http {
      */
     public HttpResponse send(String method, String url, Map<String, String> headers, Object json, Map<String, String> form) {
         Map<String, String> lower = new LinkedHashMap<>();
+        lower.put("user-agent", USER_AGENT);
         headers.forEach((name, value) -> lower.put(name.toLowerCase(Locale.ROOT), value));
         String body = null;
         if (form != null) {

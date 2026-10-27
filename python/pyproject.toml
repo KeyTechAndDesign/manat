@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "keytd-manat"
-version = "0.2.0"
+version = "0.2.1"
 description = "One API for Azerbaijani online payment providers: Kapital Bank, Azericard, Payriff, Epoint, GoldenPay and Yığım."
 readme = "README.md"
 license = "MIT"

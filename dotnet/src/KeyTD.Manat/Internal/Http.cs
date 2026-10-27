@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +30,9 @@ namespace KeyTD.Manat.Internal
         /// <summary>Shared by adapters that were not given a client, as HttpClient is meant to be reused.</summary>
         private static readonly HttpClient Shared = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
 
+        /// <summary>Sent with every request so providers can tell the SDK apart from generic clients.</summary>
+        internal static readonly string UserAgent = $"keytd-manat/{Version()} (dotnet; +https://github.com/KeyTechAndDesign/manat)";
+
         private readonly string provider;
         private readonly HttpClient client;
         private readonly TimeSpan timeout;
@@ -45,6 +49,7 @@ namespace KeyTD.Manat.Internal
             IEnumerable<KeyValuePair<string, string>>? form, CancellationToken cancellationToken)
         {
             using var request = new HttpRequestMessage(new HttpMethod(method), url);
+            request.Headers.TryAddWithoutValidation("user-agent", UserAgent);
             string? contentType = null;
             foreach (var header in headers ?? Array.Empty<KeyValuePair<string, string>>())
             {
@@ -117,6 +122,14 @@ namespace KeyTD.Manat.Internal
                 throw new ManatException(ManatErrorCode.NetworkError, $"{provider}: expected JSON, got HTTP {reply.Status} \"{excerpt}\"", provider, raw: reply.Body,
                     inner: error);
             }
+        }
+
+        /// <summary>The package version without the source-revision suffix (0.2.1+abc → 0.2.1).</summary>
+        private static string Version()
+        {
+            var version = typeof(Http).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "0.0.0";
+            var plus = version.IndexOf('+');
+            return plus < 0 ? version : version.Substring(0, plus);
         }
 
         private static string Decode(byte[] bytes, string? charset)
