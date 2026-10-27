@@ -1,0 +1,30 @@
+name: NuGet
+
+# Publishes KeyTD.Manat with NuGet trusted publishing (no API key stored): run it by hand, or push a v* tag.
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dotnet
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet test tests/KeyTD.Manat.Tests -f net10.0
+      - run: dotnet pack src/KeyTD.Manat -c Release -o out -p:ContinuousIntegrationBuild=true
+      - uses: NuGet/login@v1
+        id: login
+        with:
+          user: keytd
+      - run: dotnet nuget push "out/*.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
