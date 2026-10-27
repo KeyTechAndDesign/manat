@@ -3,8 +3,6 @@
 One API for Azerbaijani online payment providers: Kapital Bank, Azericard, Payriff, Epoint, GoldenPay and Yığım.
 netstandard2.0, so it runs on .NET Framework 4.6.1+ as well as .NET 6, 8, 10…; no package dependencies.
 
-Not on NuGet yet. Until it is, reference the project (`dotnet/src/KeyTD.Manat`) or build a package with `dotnet pack`.
-
 ```bash
 dotnet add package KeyTD.Manat
 ```
