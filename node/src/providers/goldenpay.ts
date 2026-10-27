@@ -204,9 +204,10 @@ function truncateBytes(value: string, max: number): string {
     return out;
 }
 
-function pick(source: Record<string, string | string[] | undefined> | undefined, key: string): string | undefined {
+function pick(source: Record<string, unknown> | undefined, key: string): string | undefined {
     const value = source?.[key];
-    return Array.isArray(value) ? value[0] : value;
+    const first: unknown = Array.isArray(value) ? value[0] : value;
+    return typeof first === 'string' ? first : undefined;
 }
 
 function pickBody(body: IncomingCallback['body'], key: string): string | undefined {

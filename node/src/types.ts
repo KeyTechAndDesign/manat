@@ -43,7 +43,8 @@ export interface CreatePaymentResult {
 
 export interface IncomingCallback {
     method: string;
-    query?: Record<string, string | string[] | undefined>;
+    /** Express, Fastify and similar query objects work as is; only string values (or the first of an array) are read. */
+    query?: Record<string, unknown>;
     body?: Record<string, unknown> | string;
     headers?: Record<string, string | string[] | undefined>;
 }

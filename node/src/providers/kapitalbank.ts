@@ -236,9 +236,10 @@ function missingAmount(paymentId: string): never {
     throw new ManatError('provider_error', `kapitalbank: order ${paymentId} has no amount to capture`, {provider: 'kapitalbank'});
 }
 
-function pick(source: Record<string, string | string[] | undefined> | undefined, key: string): string | undefined {
+function pick(source: Record<string, unknown> | undefined, key: string): string | undefined {
     const value = source?.[key];
-    return Array.isArray(value) ? value[0] : value;
+    const first: unknown = Array.isArray(value) ? value[0] : value;
+    return typeof first === 'string' ? first : undefined;
 }
 
 function pickBody(body: IncomingCallback['body'], key: string): string | undefined {

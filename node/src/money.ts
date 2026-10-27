@@ -22,8 +22,11 @@ export function toDecimalString(money: Money): string {
     return `${units.slice(0, -digits)}.${units.slice(-digits)}`;
 }
 
-/** "25.5" / "25.50" / 25.5 → 2550. Rejects more decimals than the currency has. */
+/** "25.5" / "25.50" / 25 → 2550. Rejects floats (pass "25.50", not 25.5) and more decimals than the currency has. */
 export function fromDecimal(value: string | number, currency: Currency): Money {
+    if (typeof value === 'number' && !Number.isSafeInteger(value)) {
+        throw new ManatError('invalid_request', `${value} is not a whole number; pass the amount as a string such as "25.50"`);
+    }
     const text = typeof value === 'number' ? value.toString() : value.trim();
     const digits = MINOR_DIGITS[currency];
     const match = /^(\d+)(?:\.(\d+))?$/.exec(text);
@@ -42,7 +45,7 @@ export function currencyFromNumeric(code: string): Currency | undefined {
     return (Object.keys(NUMERIC_CODES) as Currency[]).find((c) => NUMERIC_CODES[c] === code);
 }
 
-/** Convenience for callers: Manat.azn(25.5) → { amount: 2550, currency: 'AZN' }. */
+/** azn('25.50') → { amount: 2550, currency: 'AZN' }; whole manats may be a number: azn(25). */
 export function azn(value: string | number): Money {
     return fromDecimal(value, 'AZN');
 }

@@ -12,14 +12,19 @@ describe('money', () => {
 
     it('parses decimals into minor units', () => {
         expect(azn('25.5')).toEqual({amount: 2550, currency: 'AZN'});
-        expect(azn(25.5)).toEqual({amount: 2550, currency: 'AZN'});
+        expect(azn(25)).toEqual({amount: 2500, currency: 'AZN'});
         expect(azn('0.05')).toEqual({amount: 5, currency: 'AZN'});
         expect(fromDecimal('10', 'EUR')).toEqual({amount: 1000, currency: 'EUR'});
     });
 
     it('rejects amounts that cannot be represented exactly', () => {
-        for (const bad of ['25.555', '-1', 'abc', '', '1e3', 0.1 + 0.2]) {
-            expect(() => azn(bad)).toThrow();
+        for (const bad of ['25.555', '-1', 'abc', '', '1e3', 25.5, 0.1 + 0.2, -1, Number.NaN, Number.POSITIVE_INFINITY]) {
+            try {
+                azn(bad);
+                expect.unreachable();
+            } catch (error) {
+                expect(isManatError(error, 'invalid_request')).toBe(true);
+            }
         }
     });
 
