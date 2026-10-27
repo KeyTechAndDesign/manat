@@ -7,3 +7,4 @@
 /php/tests export-ignore
 /php/phpunit.xml.dist export-ignore
 /java export-ignore
+/dotnet export-ignore

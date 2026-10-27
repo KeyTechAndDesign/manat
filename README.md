@@ -29,7 +29,7 @@ const {next} = await pay.createPayment({
 | TypeScript    | [`npm i @keytd/manat`](https://www.npmjs.com/package/@keytd/manat) ([docs](node/README.md)) | 0.1.0 |
 | PHP           | [`composer require keytd/manat`](https://packagist.org/packages/keytd/manat) ([docs](php/README.md)) | 0.1.0 |
 | Java / Kotlin | `com.keytd:manat` ([docs](java/README.md)) | not yet on Maven Central |
-| C#            | NuGet | planned |
+| C# / .NET     | `KeyTD.Manat` ([docs](dotnet/README.md)) | not yet on NuGet |
 | Python        | PyPI | planned |
 | Go            | `go get` | planned |
 

@@ -11,3 +11,5 @@ composer.lock
 .phpunit.result.cache
 node/LICENSE
 target/
+bin/
+obj/

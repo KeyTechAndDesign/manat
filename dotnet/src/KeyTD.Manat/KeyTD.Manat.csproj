@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- netstandard2.0 runs on .NET Framework 4.6.1+ and every .NET Core / .NET 5+; no package dependencies. -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>KeyTD.Manat</RootNamespace>
+
+    <PackageId>KeyTD.Manat</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>KeyTD</Authors>
+    <Company>KeyTD</Company>
+    <Description>One API for Azerbaijani online payment providers: Kapital Bank, Azericard, Payriff, Epoint, GoldenPay and Yığım. No dependencies.</Description>
+    <PackageTags>azerbaijan;payments;azn;manat;payment-gateway;kapital-bank;azericard;payriff;epoint;goldenpay;yigim</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/KeyTechAndDesign/manat</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/KeyTechAndDesign/manat.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <InternalsVisibleTo Include="KeyTD.Manat.Tests" />
+  </ItemGroup>
+
+</Project>

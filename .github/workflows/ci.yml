@@ -66,3 +66,18 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: maven
       - run: mvn -B test
+
+  dotnet:
+    name: .NET
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dotnet
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - run: dotnet test tests/KeyTD.Manat.Tests
