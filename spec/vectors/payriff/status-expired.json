@@ -1,0 +1,51 @@
+{
+  "provider": "payriff",
+  "config": {
+    "secretKey": "test-secret-key"
+  },
+  "description": "An order whose payment page timed out, as Payriff test mode returns it: EXPIRED is reported as cancelled",
+  "operation": "getStatus",
+  "input": {
+    "paymentId": "0a20931e-5e6b-474f-9e61-71a7efca3706"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://api.payriff.com/api/v3/orders/0a20931e-5e6b-474f-9e61-71a7efca3706",
+        "headers": {
+          "authorization": "test-secret-key"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "code": "00000",
+          "message": "Operation performed successfully",
+          "route": "dashboard/main",
+          "responseId": "7caa9836513f4a1e8df58f39ee3b735f",
+          "responseDetails": null,
+          "payload": {
+            "orderId": "0a20931e-5e6b-474f-9e61-71a7efca3706",
+            "amount": 1,
+            "currencyType": "AZN",
+            "merchantName": "YeniBirja",
+            "operationType": "PURCHASE",
+            "paymentStatus": "EXPIRED",
+            "auto": false,
+            "createdDate": "2026-10-26T16:50:12.896088",
+            "description": "manat sandbox check"
+          }
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "0a20931e-5e6b-474f-9e61-71a7efca3706",
+    "status": "cancelled",
+    "amount": {
+      "amount": 100,
+      "currency": "AZN"
+    }
+  }
+}

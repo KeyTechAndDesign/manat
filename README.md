@@ -50,7 +50,8 @@ The shared interface and the cross-language test vectors live in [`spec/`](spec/
   and the test machine was not reachable from the internet. Callback verification is covered by vectors.
 - **Payriff** (`api.payriff.com`, key of an application in "Development" status, which Payriff runs in test mode
   only): AZN and USD order creation (with `callbackUrl` and metadata), the hosted payment page, `getStatus`
-  (`CREATED` → `pending`, `amount: 1.5` USD → 150 cents), `verifyCallback` re-reading the order, and the errors for
+  (`CREATED` → `pending`, `amount: 1.5` USD → 150 cents, `EXPIRED` → `cancelled` once the payment page timed out),
+  `verifyCallback` re-reading the order, and the errors for
   an unknown order, a refund of an unpaid order and a capture of an unpaid pre-auth. Paid orders, refunds and
   captures still need a test-card payment. Test-mode orders also get a `pay.payriff.com` link, not the
   `sbpay.payriff.com` shown in the docs, and the page shows no test marking.
