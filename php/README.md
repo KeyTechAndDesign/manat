@@ -58,8 +58,6 @@ new Yigim(['merchant' => ..., 'apiKey' => ..., 'biller' => ..., 'environment' =>
 | Yığım        | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 `$pay->supports('capture')` tells you at runtime; an unsupported call throws `unsupported_operation`.
-Provider details (what was checked live, quirks, why some operations are missing) are in the
-[main README](../README.md#providers).
 
 ## Callbacks
 

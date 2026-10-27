@@ -47,8 +47,6 @@ yigim({merchant, apiKey, biller, environment: 'test'});
 | Yığım        | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 `pay.supports('capture')` tells you at runtime; an unsupported call throws `unsupported_operation`.
-Provider details (what was checked live, quirks, why some operations are missing) are in the
-[main README](https://github.com/KeyTechAndDesign/manat#providers).
 
 ## Callbacks
 

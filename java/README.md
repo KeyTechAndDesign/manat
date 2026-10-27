@@ -55,8 +55,6 @@ Yigim.builder().merchant(merchant).apiKey(apiKey).biller(biller).environment(Env
 | Yığım        | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 `pay.supports(Capability.CAPTURE)` tells you at runtime; an unsupported call throws `unsupported_operation`.
-Provider details (what was checked live, quirks, why some operations are missing) are in the
-[main README](../README.md#providers).
 
 ## Callbacks
 
