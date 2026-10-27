@@ -1,0 +1,32 @@
+name: PyPI
+
+# Publishes keytd-manat with PyPI trusted publishing (no API token stored): run it by hand, or push a v* tag.
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    defaults:
+      run:
+        working-directory: python
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - run: python -m unittest discover -s tests
+        env:
+          PYTHONPATH: src:tests
+      - run: cp ../LICENSE LICENSE && python -m pip install build && python -m build
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: python/dist

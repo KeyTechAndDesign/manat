@@ -17,3 +17,4 @@ __pycache__/
 *.egg-info/
 python/build/
 python/dist/
+python/LICENSE

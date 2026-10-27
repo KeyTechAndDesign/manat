@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,13 +7,12 @@ name = "keytd-manat"
 version = "0.1.0"
 description = "One API for Azerbaijani online payment providers: Kapital Bank, Azericard, Payriff, Epoint, GoldenPay and Yığım."
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
 authors = [{name = "KeyTD", email = "info@keytd.com"}]
 requires-python = ">=3.10"
 dependencies = []
 keywords = ["azerbaijan", "payments", "azn", "manat", "payment-gateway", "kapital-bank", "azericard", "payriff", "epoint", "goldenpay", "yigim"]
 classifiers = [
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Topic :: Office/Business :: Financial",
 ]
