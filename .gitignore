@@ -5,3 +5,8 @@ coverage/
 .env
 *.log
 azericard-sandbox.html
+vendor/
+composer.lock
+.phpunit.cache/
+.phpunit.result.cache
+node/LICENSE

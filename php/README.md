@@ -104,7 +104,7 @@ new Payriff(['secretKey' => ...], ['timeout' => 10.0, 'transport' => new MyTrans
 
 ## Tests
 
-The adapters run the same JSON test vectors as every other language (`../spec/vectors`):
+The adapters run the same JSON test vectors as every other language (`spec/vectors`). From the repository root:
 
 ```bash
 composer install && composer test
