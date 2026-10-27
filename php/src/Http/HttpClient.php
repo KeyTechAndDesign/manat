@@ -10,7 +10,7 @@ use Manat\ManatError;
 /** @internal Wraps a Transport: encodes bodies, applies the timeout and turns failures into ManatError. */
 final class HttpClient
 {
-    public const VERSION = '0.2.1';
+    public const VERSION = '0.2.2';
     /** Sent with every request so providers can tell the SDK apart from generic clients. */
     public const USER_AGENT = 'keytd-manat/' . self::VERSION . ' (php; +https://github.com/KeyTechAndDesign/manat)';
 

@@ -26,12 +26,12 @@ const {next} = await pay.createPayment({
 
 | Language      | Install | Status |
 |---------------|---------|--------|
-| TypeScript    | [`npm i @keytd/manat`](https://www.npmjs.com/package/@keytd/manat) ([docs](node/README.md)) | 0.2.1 |
-| PHP           | [`composer require keytd/manat`](https://packagist.org/packages/keytd/manat) ([docs](php/README.md)) | 0.2.1 |
-| Java / Kotlin | [`com.keytd:manat`](https://central.sonatype.com/artifact/com.keytd/manat) ([docs](java/README.md)) | 0.2.1 |
-| C# / .NET     | [`dotnet add package KeyTD.Manat`](https://www.nuget.org/packages/KeyTD.Manat) ([docs](dotnet/README.md)) | 0.2.1 |
-| Python        | [`pip install keytd-manat`](https://pypi.org/project/keytd-manat/) ([docs](python/README.md)) | 0.2.1 |
-| Go            | [`go get github.com/KeyTechAndDesign/manat/go`](https://pkg.go.dev/github.com/KeyTechAndDesign/manat/go) ([docs](go/README.md)) | 0.2.1 |
+| TypeScript    | [`npm i @keytd/manat`](https://www.npmjs.com/package/@keytd/manat) ([docs](node/README.md)) | 0.2.2 |
+| PHP           | [`composer require keytd/manat`](https://packagist.org/packages/keytd/manat) ([docs](php/README.md)) | 0.2.2 |
+| Java / Kotlin | [`com.keytd:manat`](https://central.sonatype.com/artifact/com.keytd/manat) ([docs](java/README.md)) | 0.2.2 |
+| C# / .NET     | [`dotnet add package KeyTD.Manat`](https://www.nuget.org/packages/KeyTD.Manat) ([docs](dotnet/README.md)) | 0.2.2 |
+| Python        | [`pip install keytd-manat`](https://pypi.org/project/keytd-manat/) ([docs](python/README.md)) | 0.2.2 |
+| Go            | [`go get github.com/KeyTechAndDesign/manat/go`](https://pkg.go.dev/github.com/KeyTechAndDesign/manat/go) ([docs](go/README.md)) | 0.2.2 |
 
 ## Providers
 

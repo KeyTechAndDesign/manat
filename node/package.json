@@ -1,6 +1,6 @@
 {
   "name": "@keytd/manat",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "One API for Azerbaijani online payment providers.",
   "license": "MIT",
   "author": "KeyTD <info@keytd.com>",

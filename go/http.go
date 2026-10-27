@@ -19,7 +19,7 @@ type Doer interface {
 const defaultTimeout = 30 * time.Second
 
 // Version is this module's release.
-const Version = "0.2.1"
+const Version = "0.2.2"
 
 // userAgent is sent with every request so providers can tell the SDK apart from generic clients.
 const userAgent = "keytd-manat/" + Version + " (go; +https://github.com/KeyTechAndDesign/manat)"
