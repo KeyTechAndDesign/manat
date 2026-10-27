@@ -31,7 +31,7 @@ const {next} = await pay.createPayment({
 | Java / Kotlin | `com.keytd:manat` ([docs](java/README.md)) | not yet on Maven Central |
 | C# / .NET     | [`dotnet add package KeyTD.Manat`](https://www.nuget.org/packages/KeyTD.Manat) ([docs](dotnet/README.md)) | 0.1.0 |
 | Python        | `keytd-manat` ([docs](python/README.md)) | not yet on PyPI |
-| Go            | `go get github.com/KeyTechAndDesign/manat/go` ([docs](go/README.md)) | tag `go/v0.1.0` not pushed yet |
+| Go            | [`go get github.com/KeyTechAndDesign/manat/go`](https://pkg.go.dev/github.com/KeyTechAndDesign/manat/go) ([docs](go/README.md)) | 0.1.0 |
 
 ## Providers
 
