@@ -3,8 +3,6 @@
 One API for Azerbaijani online payment providers: Kapital Bank, Azericard, Payriff, Epoint, GoldenPay and Yığım.
 Java 11+, works from Kotlin as is, no runtime dependencies (java.net.http, java.security and a small built-in JSON reader).
 
-Not on Maven Central yet. Until it is, build it locally with `mvn install` (in `java/`) and use:
-
 ```xml
 <dependency>
     <groupId>com.keytd</groupId>
@@ -12,6 +10,8 @@ Not on Maven Central yet. Until it is, build it locally with `mvn install` (in `
     <version>0.1.0</version>
 </dependency>
 ```
+
+Gradle: `implementation("com.keytd:manat:0.1.0")`
 
 ```java
 import com.keytd.manat.*;
