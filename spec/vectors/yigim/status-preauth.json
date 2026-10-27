@@ -1,0 +1,61 @@
+{
+  "provider": "yigim",
+  "config": {
+    "merchant": "manat_test",
+    "apiKey": "test-api-key",
+    "biller": "BLR0001",
+    "environment": "test"
+  },
+  "description": "getStatus: S1 is a DMS hold (authorized)",
+  "operation": "getStatus",
+  "input": {
+    "paymentId": "A-1002"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://sandbox.api.pay.yigim.az/payment/status?reference=A-1002",
+        "headers": {
+          "X-Merchant": "manat_test",
+          "X-API-Key": "test-api-key",
+          "X-Type": "JSON"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "reference": "A-1002",
+          "datetime": "2026-10-27T14:30:00.100",
+          "method": "Card",
+          "type": "DMS",
+          "pan": "510068******0966",
+          "expiry": "0928",
+          "amount": "1",
+          "fee": "0",
+          "currency": "840",
+          "biller": "BLR0001",
+          "system": "MasterCard",
+          "issuer": "Test Bank",
+          "rrn": "630012345678",
+          "approval": "016355",
+          "3ds": "00",
+          "extra": [],
+          "refund": [],
+          "transactionList": [],
+          "status": "S1",
+          "code": 0,
+          "message": "OK"
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "A-1002",
+    "status": "authorized",
+    "amount": {
+      "amount": 100,
+      "currency": "USD"
+    }
+  }
+}

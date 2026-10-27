@@ -1,0 +1,51 @@
+{
+  "provider": "yigim",
+  "config": {
+    "merchant": "manat_test",
+    "apiKey": "test-api-key",
+    "biller": "BLR0001",
+    "environment": "test"
+  },
+  "description": "getStatus: S0 (waiting for card data) is pending",
+  "operation": "getStatus",
+  "input": {
+    "paymentId": "A-1003"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://sandbox.api.pay.yigim.az/payment/status?reference=A-1003",
+        "headers": {
+          "X-Merchant": "manat_test",
+          "X-API-Key": "test-api-key",
+          "X-Type": "JSON"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "reference": "A-1003",
+          "type": "SMS",
+          "amount": "5",
+          "currency": "944",
+          "biller": "BLR0001",
+          "extra": [],
+          "refund": [],
+          "transactionList": [],
+          "status": "S0",
+          "code": 0,
+          "message": "OK"
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "A-1003",
+    "status": "pending",
+    "amount": {
+      "amount": 500,
+      "currency": "AZN"
+    }
+  }
+}

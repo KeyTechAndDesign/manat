@@ -7,6 +7,7 @@ import com.keytd.manat.providers.Epoint;
 import com.keytd.manat.providers.GoldenPay;
 import com.keytd.manat.providers.KapitalBank;
 import com.keytd.manat.providers.Payriff;
+import com.keytd.manat.providers.Yigim;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.opentest4j.AssertionFailedError;
@@ -197,6 +198,8 @@ class VectorsTest {
                 return Epoint.mapStatus((String) input.get("status"));
             case "goldenpay":
                 return GoldenPay.mapStatus(Values.integer(Values.get(input, "status", "code")));
+            case "yigim":
+                return Yigim.mapStatus((String) input.get("status"));
             default:
                 throw new IllegalArgumentException(provider + " has no mapStatus");
         }
@@ -230,6 +233,12 @@ class VectorsTest {
             case "goldenpay": {
                 GoldenPay.Builder builder = GoldenPay.builder().transport(transport)
                         .authKey((String) config.get("authKey")).merchantName((String) config.get("merchantName")).baseUrl((String) config.get("baseUrl"));
+                return (environment == null ? builder : builder.environment(environment)).build();
+            }
+            case "yigim": {
+                Yigim.Builder builder = Yigim.builder().transport(transport)
+                        .merchant((String) config.get("merchant")).apiKey((String) config.get("apiKey")).biller((String) config.get("biller"))
+                        .template((String) config.get("template")).baseUrl((String) config.get("baseUrl"));
                 return (environment == null ? builder : builder.environment(environment)).build();
             }
             case "azericard": {

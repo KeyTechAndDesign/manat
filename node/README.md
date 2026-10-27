@@ -1,6 +1,6 @@
 # Manat for TypeScript / JavaScript
 
-One API for Azerbaijani online payment providers: Kapital Bank, Azericard, Payriff, Epoint and GoldenPay.
+One API for Azerbaijani online payment providers: Kapital Bank, Azericard, Payriff, Epoint, GoldenPay and Yığım.
 Node.js 18+, ESM and CommonJS, no runtime dependencies.
 
 ```bash
@@ -27,13 +27,14 @@ Store `paymentId` with the order. It is what `getStatus`, `refund`, `capture` an
 ## Providers
 
 ```ts
-import {azericard, epoint, goldenPay, kapitalBank, payriff} from '@keytd/manat';
+import {azericard, epoint, goldenPay, kapitalBank, payriff, yigim} from '@keytd/manat';
 
 kapitalBank({username, password, environment: 'test'});
 azericard({terminal, privateKey, gatewayPublicKey, merchantName, merchantUrl, environment: 'test'});
 payriff({secretKey});
 epoint({publicKey, privateKey});
 goldenPay({authKey, merchantName, environment: 'test'});
+yigim({merchant, apiKey, biller, environment: 'test'});
 ```
 
 | Provider     | createPayment | verifyCallback | getStatus | refund | capture | cancel |
@@ -43,6 +44,7 @@ goldenPay({authKey, merchantName, environment: 'test'});
 | Payriff      | ✓ | ✓ | ✓ | ✓ | ✓ | — |
 | Epoint       | ✓ | ✓ | ✓ | ✓ | — | — |
 | GoldenPay    | ✓ | ✓ | ✓ | ✓ | — | — |
+| Yığım        | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 `pay.supports('capture')` tells you at runtime; an unsupported call throws `unsupported_operation`.
 Provider details (what was checked live, quirks, why some operations are missing) are in the

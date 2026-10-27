@@ -14,3 +14,5 @@ export {epoint, EpointProvider} from './providers/epoint.js';
 export type {EpointConfig} from './providers/epoint.js';
 export {goldenPay, GoldenPayProvider} from './providers/goldenpay.js';
 export type {GoldenPayConfig} from './providers/goldenpay.js';
+export {yigim, YigimProvider} from './providers/yigim.js';
+export type {YigimConfig} from './providers/yigim.js';

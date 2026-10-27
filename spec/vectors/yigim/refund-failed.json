@@ -1,0 +1,41 @@
+{
+  "provider": "yigim",
+  "config": {
+    "merchant": "manat_test",
+    "apiKey": "test-api-key",
+    "biller": "BLR0001",
+    "environment": "test"
+  },
+  "description": "refund: a refused refund (code 4, not permitted) is a provider_error; the status is not read",
+  "operation": "refund",
+  "input": {
+    "paymentId": "A-1001"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://sandbox.api.pay.yigim.az/payment/refund?reference=A-1001",
+        "headers": {
+          "X-Merchant": "manat_test",
+          "X-API-Key": "test-api-key",
+          "X-Type": "JSON"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "extra": [],
+          "refund": [],
+          "transactionList": [],
+          "code": 4,
+          "message": "Not permitted (method is not allowed for Merchant)"
+        }
+      }
+    }
+  ],
+  "expected": {
+    "error": "provider_error",
+    "providerCode": "4"
+  }
+}

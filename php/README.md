@@ -1,6 +1,6 @@
 # Manat for PHP
 
-One API for Azerbaijani online payment providers: Kapital Bank, Azericard, Payriff, Epoint and GoldenPay.
+One API for Azerbaijani online payment providers: Kapital Bank, Azericard, Payriff, Epoint, GoldenPay and Yığım.
 PHP 8.1+, no Composer dependencies (only the `curl`, `json` and `openssl` extensions that ship with PHP).
 
 ```bash
@@ -34,7 +34,7 @@ Store `$result->paymentId` with the order. It is what `getStatus`, `refund`, `ca
 ## Providers
 
 ```php
-use Manat\Providers\{Azericard, Epoint, GoldenPay, KapitalBank, Payriff};
+use Manat\Providers\{Azericard, Epoint, GoldenPay, KapitalBank, Payriff, Yigim};
 
 new KapitalBank(['username' => ..., 'password' => ..., 'environment' => 'test']);
 new Azericard([
@@ -45,6 +45,7 @@ new Azericard([
 new Payriff(['secretKey' => ...]);
 new Epoint(['publicKey' => ..., 'privateKey' => ...]);
 new GoldenPay(['authKey' => ..., 'merchantName' => ..., 'environment' => 'test']);
+new Yigim(['merchant' => ..., 'apiKey' => ..., 'biller' => ..., 'environment' => 'test']);
 ```
 
 | Provider     | createPayment | verifyCallback | getStatus | refund | capture | cancel |
@@ -54,6 +55,7 @@ new GoldenPay(['authKey' => ..., 'merchantName' => ..., 'environment' => 'test']
 | Payriff      | ✓ | ✓ | ✓ | ✓ | ✓ | — |
 | Epoint       | ✓ | ✓ | ✓ | ✓ | — | — |
 | GoldenPay    | ✓ | ✓ | ✓ | ✓ | — | — |
+| Yığım        | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 `$pay->supports('capture')` tells you at runtime; an unsupported call throws `unsupported_operation`.
 Provider details (what was checked live, quirks, why some operations are missing) are in the

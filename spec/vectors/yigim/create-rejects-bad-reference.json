@@ -1,0 +1,22 @@
+{
+  "provider": "yigim",
+  "config": {
+    "merchant": "manat_test",
+    "apiKey": "test-api-key",
+    "biller": "BLR0001",
+    "environment": "test"
+  },
+  "description": "createPayment: an orderId with whitespace cannot be a reference; nothing is sent",
+  "operation": "createPayment",
+  "input": {
+    "orderId": "A 1006",
+    "amount": {
+      "amount": 100,
+      "currency": "AZN"
+    },
+    "returnUrl": "https://shop.example.az/payment/return"
+  },
+  "expected": {
+    "error": "invalid_request"
+  }
+}

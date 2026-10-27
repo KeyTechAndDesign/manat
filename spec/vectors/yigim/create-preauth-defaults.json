@@ -1,0 +1,51 @@
+{
+  "provider": "yigim",
+  "config": {
+    "merchant": "manat_test",
+    "apiKey": "test-api-key",
+    "biller": "BLR0001"
+  },
+  "description": "createPayment: intent authorize is DMS; production host, default template TPL0001 and language az; no description or callback when not given",
+  "operation": "createPayment",
+  "input": {
+    "orderId": "A-1002",
+    "amount": {
+      "amount": 100,
+      "currency": "USD"
+    },
+    "returnUrl": "https://shop.example.az/payment/return",
+    "intent": "authorize"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://api.pay.yigim.az/payment/create?reference=A-1002&type=DMS&amount=100&currency=840&biller=BLR0001&template=TPL0001&language=az",
+        "headers": {
+          "X-Merchant": "manat_test",
+          "X-API-Key": "test-api-key",
+          "X-Type": "JSON"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "extra": [],
+          "refund": [],
+          "transactionList": [],
+          "code": 0,
+          "message": "OK",
+          "url": "https://api.pay.yigim.az/payment/45617812104415"
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "A-1002",
+    "status": "pending",
+    "next": {
+      "type": "redirect",
+      "url": "https://api.pay.yigim.az/payment/45617812104415"
+    }
+  }
+}

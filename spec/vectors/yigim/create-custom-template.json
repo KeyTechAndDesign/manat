@@ -1,0 +1,51 @@
+{
+  "provider": "yigim",
+  "config": {
+    "merchant": "manat_test",
+    "apiKey": "test-api-key",
+    "biller": "BLR0001",
+    "environment": "test",
+    "template": "TPL0003"
+  },
+  "description": "createPayment: a configured template replaces TPL0001",
+  "operation": "createPayment",
+  "input": {
+    "orderId": "A-1003",
+    "amount": {
+      "amount": 500,
+      "currency": "AZN"
+    },
+    "returnUrl": "https://shop.example.az/payment/return"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://sandbox.api.pay.yigim.az/payment/create?reference=A-1003&type=SMS&amount=500&currency=944&biller=BLR0001&template=TPL0003&language=az",
+        "headers": {
+          "X-Merchant": "manat_test",
+          "X-API-Key": "test-api-key",
+          "X-Type": "JSON"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "extra": [],
+          "refund": [],
+          "transactionList": [],
+          "code": 0,
+          "message": "OK",
+          "url": "https://sandbox.api.pay.yigim.az/payment/45617812104416"
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "A-1003",
+    "next": {
+      "type": "redirect",
+      "url": "https://sandbox.api.pay.yigim.az/payment/45617812104416"
+    }
+  }
+}

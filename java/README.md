@@ -1,6 +1,6 @@
 # Manat for Java / Kotlin
 
-One API for Azerbaijani online payment providers: Kapital Bank, Azericard, Payriff, Epoint and GoldenPay.
+One API for Azerbaijani online payment providers: Kapital Bank, Azericard, Payriff, Epoint, GoldenPay and Yığım.
 Java 11+, works from Kotlin as is, no runtime dependencies (java.net.http, java.security and a small built-in JSON reader).
 
 Not on Maven Central yet. Until it is, build it locally with `mvn install` (in `java/`) and use:
@@ -42,6 +42,7 @@ Azericard.builder().terminal(terminal).privateKey(merchantPem).gatewayPublicKey(
 Payriff.builder().secretKey(secretKey).build();
 Epoint.builder().publicKey(publicKey).privateKey(privateKey).build();
 GoldenPay.builder().authKey(authKey).merchantName(merchantName).environment(Environment.TEST).build();
+Yigim.builder().merchant(merchant).apiKey(apiKey).biller(biller).environment(Environment.TEST).build();
 ```
 
 | Provider     | createPayment | verifyCallback | getStatus | refund | capture | cancel |
@@ -51,6 +52,7 @@ GoldenPay.builder().authKey(authKey).merchantName(merchantName).environment(Envi
 | Payriff      | ✓ | ✓ | ✓ | ✓ | ✓ | — |
 | Epoint       | ✓ | ✓ | ✓ | ✓ | — | — |
 | GoldenPay    | ✓ | ✓ | ✓ | ✓ | — | — |
+| Yığım        | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 `pay.supports(Capability.CAPTURE)` tells you at runtime; an unsupported call throws `unsupported_operation`.
 Provider details (what was checked live, quirks, why some operations are missing) are in the

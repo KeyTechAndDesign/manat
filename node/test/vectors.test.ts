@@ -9,6 +9,7 @@ import {AzericardProvider, azericardMacSource} from '../src/providers/azericard.
 import {PayriffProvider, mapPayriffStatus} from '../src/providers/payriff.js';
 import {EpointProvider, epointEncode, mapEpointStatus} from '../src/providers/epoint.js';
 import {GoldenPayProvider, mapGoldenPayStatus} from '../src/providers/goldenpay.js';
+import {YigimProvider, mapYigimStatus} from '../src/providers/yigim.js';
 
 const VECTORS = join(dirname(fileURLToPath(import.meta.url)), '../../spec/vectors');
 
@@ -49,6 +50,10 @@ const PROVIDERS: Record<string, {create: Factory; mapStatus?: (input: never) => 
     goldenpay: {
         create: (config, fetch) => new GoldenPayProvider(config, {fetch}),
         mapStatus: (input: {status: {code: number}}) => mapGoldenPayStatus(input.status.code),
+    },
+    yigim: {
+        create: (config, fetch) => new YigimProvider(config, {fetch}),
+        mapStatus: (input: {status: string}) => mapYigimStatus(input.status),
     },
 };
 

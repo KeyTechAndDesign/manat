@@ -1,0 +1,20 @@
+{
+  "provider": "yigim",
+  "config": {
+    "merchant": "manat_test",
+    "apiKey": "test-api-key",
+    "biller": "BLR0001",
+    "environment": "test"
+  },
+  "description": "verifyCallback: no reference, nothing to check",
+  "operation": "verifyCallback",
+  "input": {
+    "method": "GET",
+    "query": {
+      "status": "00"
+    }
+  },
+  "expected": {
+    "error": "invalid_signature"
+  }
+}

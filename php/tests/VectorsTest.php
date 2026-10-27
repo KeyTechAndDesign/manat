@@ -12,6 +12,7 @@ use Manat\Providers\Epoint;
 use Manat\Providers\GoldenPay;
 use Manat\Providers\KapitalBank;
 use Manat\Providers\Payriff;
+use Manat\Providers\Yigim;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -102,6 +103,7 @@ final class VectorsTest extends TestCase
             'payriff' => new Payriff($config, $options),
             'epoint' => new Epoint($config, $options),
             'goldenpay' => new GoldenPay($config, $options),
+            'yigim' => new Yigim($config, $options),
         };
     }
 
@@ -112,6 +114,7 @@ final class VectorsTest extends TestCase
             'payriff' => Payriff::mapStatus($input['paymentStatus']),
             'epoint' => Epoint::mapStatus($input['status']),
             'goldenpay' => GoldenPay::mapStatus($input['status']['code']),
+            'yigim' => Yigim::mapStatus($input['status']),
         };
     }
 

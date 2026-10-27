@@ -1,0 +1,141 @@
+{
+  "provider": "yigim",
+  "config": {
+    "merchant": "manat_test",
+    "apiKey": "test-api-key",
+    "biller": "BLR0001",
+    "environment": "test"
+  },
+  "description": "Every authorization status code in section 8.1 maps to a Manat status",
+  "operation": "mapStatus",
+  "cases": [
+    {
+      "input": {
+        "status": "S0"
+      },
+      "expected": {
+        "status": "pending"
+      }
+    },
+    {
+      "input": {
+        "status": "S1"
+      },
+      "expected": {
+        "status": "authorized"
+      }
+    },
+    {
+      "input": {
+        "status": "S2"
+      },
+      "expected": {
+        "status": "pending"
+      }
+    },
+    {
+      "input": {
+        "status": "S3"
+      },
+      "expected": {
+        "status": "failed"
+      }
+    },
+    {
+      "input": {
+        "status": "S4"
+      },
+      "expected": {
+        "status": "cancelled"
+      }
+    },
+    {
+      "input": {
+        "status": "S7"
+      },
+      "expected": {
+        "status": "failed"
+      }
+    },
+    {
+      "input": {
+        "status": "00"
+      },
+      "expected": {
+        "status": "paid"
+      }
+    },
+    {
+      "input": {
+        "status": "01"
+      },
+      "expected": {
+        "status": "failed"
+      }
+    },
+    {
+      "input": {
+        "status": "02"
+      },
+      "expected": {
+        "status": "failed"
+      }
+    },
+    {
+      "input": {
+        "status": "03"
+      },
+      "expected": {
+        "status": "failed"
+      }
+    },
+    {
+      "input": {
+        "status": "04"
+      },
+      "expected": {
+        "status": "failed"
+      }
+    },
+    {
+      "input": {
+        "status": "05"
+      },
+      "expected": {
+        "status": "failed"
+      }
+    },
+    {
+      "input": {
+        "status": "06"
+      },
+      "expected": {
+        "status": "failed"
+      }
+    },
+    {
+      "input": {
+        "status": "07"
+      },
+      "expected": {
+        "status": "failed"
+      }
+    },
+    {
+      "input": {
+        "status": "08"
+      },
+      "expected": {
+        "status": "failed"
+      }
+    },
+    {
+      "input": {
+        "status": "09"
+      },
+      "expected": {
+        "status": "failed"
+      }
+    }
+  ]
+}

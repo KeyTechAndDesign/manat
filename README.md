@@ -21,8 +21,8 @@ const {next} = await pay.createPayment({
 - Every provider exposes the same operations: `createPayment`, `verifyCallback`, `getStatus`, `refund`, plus `capture`/`cancel` where the provider supports them.
 - Callbacks are verified with constant-time signature checks; an unsigned redirect is never trusted on its own.
 - No runtime dependencies: each package uses only its language's standard library.
-- Built from providers' public developer documentation; where there is none (GoldenPay), from community SDKs
-  checked against the provider's test host.
+- Built from providers' public developer documentation; where there is none, from the specification a provider shares
+  with merchants (Yığım) or from community SDKs (GoldenPay), checked against the provider's test host.
 
 | Language      | Package                          | Status      |
 |---------------|----------------------------------|-------------|
@@ -44,6 +44,7 @@ The shared interface and the cross-language test vectors live in [`spec/`](spec/
 | Payriff      | ✓ | ✓ | ✓ | ✓ | ✓ | — | REST + secret key; the webhook is unsigned, so callbacks are confirmed through the API; no documented void for an uncaptured pre-auth |
 | Epoint       | ✓ | ✓ | ✓ | ✓ | — | — | Signed base64 JSON (`data` + `signature`); set the result URL in the Epoint panel; no pre-auth (see below) |
 | GoldenPay    | ✓ | ✓ | ✓ | ✓ | — | — | md5-signed JSON; AZN only; the redirect back is unsigned, so callbacks are confirmed through the API (see below) |
+| Yığım        | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | MAGNET gateway, GET + `X-API-Key`; the webhook is unsigned, so callbacks are confirmed through the API (see below) |
 
 ### Checked against the providers' test environments (2026-10-26)
 
@@ -118,14 +119,38 @@ name and auth key, test or live.
 - Refunds need an amount, so the payment is read first. GoldenPay has no partial-refund status: a refund smaller
   than the payment is reported as `partially_refunded`.
 
+### Yığım (MAGNET gateway)
+
+Yığım's MAGNET Merchant API specification is shared with merchants rather than published, so it is not
+in this repository. The adapter follows it, two community SDKs (The-Hasanov/yigim-magnet, paladium/yigim-gateway-go)
+and the replies of the sandbox `sandbox.api.pay.yigim.az` (checked 2026-10-27 without an account: reply format and
+the error for an unknown merchant). A payment, a refund and the API key check have not been tried against Yığım: that
+needs a merchant name, API key and biller from Yığım.
+
+- Every command is a GET with query parameters and the headers `X-Merchant`, `X-API-Key` and `X-Type: JSON`; without
+  `X-Type` the gateway answers XML. Both community SDKs sign requests with an older `X-Signature`; the current API uses the key.
+- The sandbox answers flat JSON (`{code, message, …}` plus `extra`, `refund` and `transactionList` arrays), not the
+  `{response: {…}}` the specification shows. Errors are HTTP 200 with a non-zero `code`. Both shapes are read.
+- The merchant's `orderId` is the payment id (`reference`). Amounts go out in qəpik with a numeric currency code;
+  `payment/status` reports the amount in manat, as the paladium SDK's sandbox test shows (100 qəpik reads 1).
+- There is no return URL per payment: where the customer lands afterwards is part of the merchant's payment-page
+  template (`TPL0001` by default), which Yığım sets up. `returnUrl` is still required by Manat but is not sent.
+- The webhook is a GET with only `reference`, so `verifyCallback` re-reads the payment.
+- A refund keeps status `00` and is listed under `refund`. No refunded payment has been seen yet: each entry's `amount`
+  is read in manat, and an entry without one counts as a full refund.
+- Status `09` (issuer timeout) is reported as `failed`; the specification asks the merchant to call `cancel` for it.
+- The production host `api.pay.yigim.az` is inferred (the specification only names the sandbox) and blocks
+  unidentified clients at its firewall; `baseUrl` overrides it.
+
 ```ts
-import {Manat, azericard, epoint, goldenPay, kapitalBank, payriff} from '@keytd/manat';
+import {Manat, azericard, epoint, goldenPay, kapitalBank, payriff, yigim} from '@keytd/manat';
 
 const kapital = new Manat(kapitalBank({username, password, environment: 'test'}));
 const azc = new Manat(azericard({terminal, privateKey, gatewayPublicKey, merchantName, merchantUrl, environment: 'test'}));
 const pr = new Manat(payriff({secretKey}));
 const ep = new Manat(epoint({publicKey, privateKey}));
 const gp = new Manat(goldenPay({authKey, merchantName, environment: 'test'}));
+const yg = new Manat(yigim({merchant, apiKey, biller, environment: 'test'}));
 ```
 
 Not affiliated with any bank or payment provider. MIT licensed, provided without warranty: test against your provider's sandbox before going live.

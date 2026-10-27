@@ -36,7 +36,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
-  "keywords": ["azerbaijan", "payments", "azn", "manat", "payment-gateway", "kapital-bank", "azericard", "payriff", "epoint", "goldenpay"],
+  "keywords": ["azerbaijan", "payments", "azn", "manat", "payment-gateway", "kapital-bank", "azericard", "payriff", "epoint", "goldenpay", "yigim"],
   "devDependencies": {
     "@types/node": "^20.14.0",
     "tsup": "^8.3.0",

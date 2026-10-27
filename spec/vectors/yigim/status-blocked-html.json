@@ -1,0 +1,34 @@
+{
+  "provider": "yigim",
+  "config": {
+    "merchant": "manat_test",
+    "apiKey": "test-api-key",
+    "biller": "BLR0001",
+    "environment": "test"
+  },
+  "description": "getStatus: an HTML page (a firewall block) instead of JSON is a network_error",
+  "operation": "getStatus",
+  "input": {
+    "paymentId": "A-1001"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://sandbox.api.pay.yigim.az/payment/status?reference=A-1001",
+        "headers": {
+          "X-Merchant": "manat_test",
+          "X-API-Key": "test-api-key",
+          "X-Type": "JSON"
+        }
+      },
+      "respond": {
+        "status": 403,
+        "text": "<!DOCTYPE html><title>Attention Required! | Cloudflare</title>"
+      }
+    }
+  ],
+  "expected": {
+    "error": "network_error"
+  }
+}

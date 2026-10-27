@@ -1,0 +1,61 @@
+{
+  "provider": "yigim",
+  "config": {
+    "merchant": "manat_test",
+    "apiKey": "test-api-key",
+    "biller": "BLR0001",
+    "environment": "test"
+  },
+  "description": "getStatus: a refund entry without an amount counts as a full refund",
+  "operation": "getStatus",
+  "input": {
+    "paymentId": "A-1001"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://sandbox.api.pay.yigim.az/payment/status?reference=A-1001",
+        "headers": {
+          "X-Merchant": "manat_test",
+          "X-API-Key": "test-api-key",
+          "X-Type": "JSON"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "reference": "A-1001",
+          "datetime": "2026-10-27T14:30:00.100",
+          "method": "Card",
+          "type": "SMS",
+          "pan": "510068******0966",
+          "expiry": "0928",
+          "amount": "1",
+          "fee": "0",
+          "currency": "944",
+          "biller": "BLR0001",
+          "system": "MasterCard",
+          "issuer": "Test Bank",
+          "rrn": "630012345678",
+          "approval": "016355",
+          "3ds": "00",
+          "extra": [],
+          "refund": [
+            {
+              "datetime": "2026-10-28T10:00:00.000"
+            }
+          ],
+          "transactionList": [],
+          "status": "00",
+          "code": 0,
+          "message": "OK"
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "A-1001",
+    "status": "refunded"
+  }
+}
