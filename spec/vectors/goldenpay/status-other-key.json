@@ -1,0 +1,42 @@
+{
+  "provider": "goldenpay",
+  "config": {
+    "authKey": "test-auth-key",
+    "merchantName": "manat_test",
+    "environment": "test"
+  },
+  "description": "A result for a different payment key is rejected",
+  "operation": "getStatus",
+  "input": {
+    "paymentId": "e93585e2-426d-440a-ae54-67bd20d362be"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://rest-newpgtest.goldenpay.az/getPaymentResult?payment_key=e93585e2-426d-440a-ae54-67bd20d362be&hash_code=a8054ab613e7cbd170ec3979e00ee5c2"
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "status": {
+            "code": 1,
+            "message": "success"
+          },
+          "paymentKey": "11111111-2222-4333-8444-555555555555",
+          "merchantName": "manat_test",
+          "amount": 2550,
+          "checkCount": 1,
+          "paymentDate": "2026-10-27 10:15:42",
+          "cardNumber": "422865******8101",
+          "language": "en",
+          "description": "Order A-1001",
+          "rrn": "630012345678"
+        }
+      }
+    }
+  ],
+  "expected": {
+    "error": "provider_error"
+  }
+}

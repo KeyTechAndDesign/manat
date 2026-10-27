@@ -1,0 +1,50 @@
+{
+  "provider": "goldenpay",
+  "config": {
+    "authKey": "test-auth-key",
+    "merchantName": "manat_test"
+  },
+  "description": "Without a description the orderId is sent (GoldenPay has no order id field); language defaults to az; production host",
+  "operation": "createPayment",
+  "input": {
+    "orderId": "A-1002",
+    "amount": {
+      "amount": 100,
+      "currency": "AZN"
+    },
+    "returnUrl": "https://shop.example.az/payment/return"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://rest-pg.goldenpay.az/getPaymentKey",
+        "json": {
+          "merchantName": "manat_test",
+          "amount": 100,
+          "lang": "az",
+          "description": "A-1002",
+          "redirectUrl": "https://shop.example.az/payment/return",
+          "hashCode": "1e0ee9073a76783b57304ea719cb1796"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "status": {
+            "code": 1,
+            "message": "success"
+          },
+          "paymentKey": "e93585e2-426d-440a-ae54-67bd20d362be"
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "e93585e2-426d-440a-ae54-67bd20d362be",
+    "next": {
+      "type": "redirect",
+      "url": "https://rest-pg.goldenpay.az/pay/e93585e2-426d-440a-ae54-67bd20d362be"
+    }
+  }
+}

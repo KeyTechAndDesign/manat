@@ -1,0 +1,48 @@
+{
+  "provider": "goldenpay",
+  "config": {
+    "authKey": "test-auth-key",
+    "merchantName": "manat_test",
+    "environment": "test"
+  },
+  "description": "Unknown merchant or wrong hash: the test host answers HTTP 200 with code 900 and no payment key",
+  "operation": "createPayment",
+  "input": {
+    "orderId": "A-1004",
+    "amount": {
+      "amount": 100,
+      "currency": "AZN"
+    },
+    "returnUrl": "https://shop.example.az/payment/return"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://rest-newpgtest.goldenpay.az/getPaymentKey",
+        "json": {
+          "merchantName": "manat_test",
+          "amount": 100,
+          "lang": "az",
+          "description": "A-1004",
+          "redirectUrl": "https://shop.example.az/payment/return",
+          "hashCode": "e17a5335a1ae67cef5f0cc4f721c14f3"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "status": {
+            "code": 900,
+            "message": "Internal exception 730291"
+          },
+          "paymentKey": null
+        }
+      }
+    }
+  ],
+  "expected": {
+    "error": "provider_error",
+    "providerCode": "900"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "provider": "goldenpay",
+  "config": {
+    "authKey": "test-auth-key",
+    "merchantName": "manat_test",
+    "environment": "test"
+  },
+  "description": "A rejected reversal is a provider_error",
+  "operation": "refund",
+  "input": {
+    "paymentId": "e93585e2-426d-440a-ae54-67bd20d362be"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://rest-newpgtest.goldenpay.az/getPaymentResult?payment_key=e93585e2-426d-440a-ae54-67bd20d362be&hash_code=a8054ab613e7cbd170ec3979e00ee5c2"
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "status": {
+            "code": 1,
+            "message": "success"
+          },
+          "paymentKey": "e93585e2-426d-440a-ae54-67bd20d362be",
+          "merchantName": "manat_test",
+          "amount": 2550,
+          "checkCount": 1,
+          "paymentDate": "2026-10-27 10:15:42",
+          "cardNumber": "422865******8101",
+          "language": "en",
+          "description": "Order A-1001",
+          "rrn": "630012345678"
+        }
+      }
+    },
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://rest-newpgtest.goldenpay.az/reversePaymentKey",
+        "json": {
+          "paymentKey": "e93585e2-426d-440a-ae54-67bd20d362be",
+          "hashCode": "a8054ab613e7cbd170ec3979e00ee5c2",
+          "amount": 2550,
+          "secretKey": "549e36f9db0d1b0e7e72928b9efc95da"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "status": {
+            "code": 900,
+            "message": "Internal exception 734752"
+          },
+          "paymentKey": null,
+          "merchantName": null,
+          "amount": null,
+          "checkCount": null,
+          "paymentDate": null,
+          "cardNumber": null,
+          "language": null,
+          "description": null,
+          "rrn": null
+        }
+      }
+    }
+  ],
+  "expected": {
+    "error": "provider_error",
+    "providerCode": "900"
+  }
+}

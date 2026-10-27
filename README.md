@@ -36,6 +36,7 @@ The shared interface and the cross-language test vectors live in [`spec/`](spec/
 | Azericard    | ✓ (form POST) | ✓ | ✓ | ✓ | ✓ | ✓ | RSA-signed CGI interface; store `event.providerRef` for refunds/captures |
 | Payriff      | ✓ | ✓ | ✓ | ✓ | ✓ | — | REST + secret key; the webhook is unsigned, so callbacks are confirmed through the API; no documented void for an uncaptured pre-auth |
 | Epoint       | ✓ | ✓ | ✓ | ✓ | — | — | Signed base64 JSON (`data` + `signature`); set the result URL in the Epoint panel; no pre-auth (see below) |
+| GoldenPay    | ✓ | ✓ | ✓ | ✓ | — | — | md5-signed JSON; AZN only; the redirect back is unsigned, so callbacks are confirmed through the API (see below) |
 
 ### Checked against the providers' test environments (2026-10-26)
 
@@ -93,13 +94,31 @@ which the adapter reports as a `provider_error`, not as a failed payment.
 - Pre-auth is left out: the documented statuses have no value for a held but uncaptured payment, so a hold could not be told from a capture.
 - Neither the callback nor `get-status` names a currency, so `amount` is only in `raw.amount`.
 
+### GoldenPay (no public docs)
+
+GoldenPay publishes no API documentation. The adapter follows two community SDKs (orkhanahmadov/goldenpay, 2021;
+Rasimoghlu/laravel-golden-pay-payment, 2026) and the replies of the test host `rest-newpgtest.goldenpay.az`
+(checked 2026-10-27 without an account: routes, the reply format and the error codes for an unknown payment key or
+merchant). A payment, a refund and the hash checks have not been tried against GoldenPay: that needs a merchant
+name and auth key, test or live.
+
+- The two SDKs disagree. The host and paths (`/getPaymentKey`, `/getPaymentResult`, `/reversePaymentKey`, payment
+  page `/pay/{paymentKey}`) follow the 2026 SDK, which the test host confirms. The reply format follows the 2021 SDK:
+  the test host answers `{status: {code, message}, paymentKey, …}` at the top level, not under `response`.
+- The API has no currency (AZN only), no order id (the description, or the orderId when there is none, is sent
+  instead), no pre-auth and no callback URL: the customer comes back to `returnUrl` with `payment_key`.
+- An unknown payment key answers code 900 "Internal exception", reported as a `provider_error`.
+- Refunds need an amount, so the payment is read first. GoldenPay has no partial-refund status: a refund smaller
+  than the payment is reported as `partially_refunded`.
+
 ```ts
-import {Manat, azericard, epoint, kapitalBank, payriff} from 'manat';
+import {Manat, azericard, epoint, goldenPay, kapitalBank, payriff} from 'manat';
 
 const kapital = new Manat(kapitalBank({username, password, environment: 'test'}));
 const azc = new Manat(azericard({terminal, privateKey, gatewayPublicKey, merchantName, merchantUrl, environment: 'test'}));
 const pr = new Manat(payriff({secretKey}));
 const ep = new Manat(epoint({publicKey, privateKey}));
+const gp = new Manat(goldenPay({authKey, merchantName, environment: 'test'}));
 ```
 
 Not affiliated with any bank or payment provider. MIT licensed, provided without warranty: test against your provider's sandbox before going live.

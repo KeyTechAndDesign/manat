@@ -1,0 +1,47 @@
+{
+  "provider": "goldenpay",
+  "config": {
+    "authKey": "test-auth-key",
+    "merchantName": "manat_test",
+    "environment": "test"
+  },
+  "description": "Code 813 (payment page not finished) is pending",
+  "operation": "getStatus",
+  "input": {
+    "paymentId": "e93585e2-426d-440a-ae54-67bd20d362be"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "GET",
+        "url": "https://rest-newpgtest.goldenpay.az/getPaymentResult?payment_key=e93585e2-426d-440a-ae54-67bd20d362be&hash_code=a8054ab613e7cbd170ec3979e00ee5c2"
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "status": {
+            "code": 813,
+            "message": "Waiting for payment"
+          },
+          "paymentKey": "e93585e2-426d-440a-ae54-67bd20d362be",
+          "merchantName": "manat_test",
+          "amount": 2550,
+          "checkCount": 0,
+          "paymentDate": null,
+          "cardNumber": null,
+          "language": "en",
+          "description": "Order A-1001",
+          "rrn": null
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "e93585e2-426d-440a-ae54-67bd20d362be",
+    "status": "pending",
+    "amount": {
+      "amount": 2550,
+      "currency": "AZN"
+    }
+  }
+}

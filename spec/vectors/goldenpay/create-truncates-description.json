@@ -1,0 +1,48 @@
+{
+  "provider": "goldenpay",
+  "config": {
+    "authKey": "test-auth-key",
+    "merchantName": "manat_test",
+    "environment": "test"
+  },
+  "description": "Descriptions are cut to 500 UTF-8 bytes without splitting a character, and the hash covers the cut text",
+  "operation": "createPayment",
+  "input": {
+    "orderId": "A-1003",
+    "amount": {
+      "amount": 100,
+      "currency": "AZN"
+    },
+    "description": "əəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəə",
+    "returnUrl": "https://shop.example.az/payment/return"
+  },
+  "http": [
+    {
+      "expect": {
+        "method": "POST",
+        "url": "https://rest-newpgtest.goldenpay.az/getPaymentKey",
+        "json": {
+          "merchantName": "manat_test",
+          "amount": 100,
+          "lang": "az",
+          "description": "əəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəəə",
+          "redirectUrl": "https://shop.example.az/payment/return",
+          "hashCode": "f0f00fe6ccdd19be1fdfa583f4a71ec1"
+        }
+      },
+      "respond": {
+        "status": 200,
+        "json": {
+          "status": {
+            "code": 1,
+            "message": "success"
+          },
+          "paymentKey": "e93585e2-426d-440a-ae54-67bd20d362be"
+        }
+      }
+    }
+  ],
+  "expected": {
+    "paymentId": "e93585e2-426d-440a-ae54-67bd20d362be"
+  }
+}
