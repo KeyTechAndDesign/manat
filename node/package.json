@@ -1,6 +1,6 @@
 {
   "name": "@keytd/manat",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "One API for Azerbaijani online payment providers.",
   "license": "MIT",
   "author": "KeyTD <info@keytd.com>",
@@ -23,7 +23,9 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -36,7 +38,19 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
-  "keywords": ["azerbaijan", "payments", "azn", "manat", "payment-gateway", "kapital-bank", "azericard", "payriff", "epoint", "goldenpay", "yigim"],
+  "keywords": [
+    "azerbaijan",
+    "payments",
+    "azn",
+    "manat",
+    "payment-gateway",
+    "kapital-bank",
+    "azericard",
+    "payriff",
+    "epoint",
+    "goldenpay",
+    "yigim"
+  ],
   "devDependencies": {
     "@types/node": "^20.14.0",
     "tsup": "^8.3.0",

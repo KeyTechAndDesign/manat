@@ -10,7 +10,7 @@
     <RootNamespace>KeyTD.Manat</RootNamespace>
 
     <PackageId>KeyTD.Manat</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Authors>KeyTD</Authors>
     <Company>KeyTD</Company>
     <Description>One API for Azerbaijani online payment providers: Kapital Bank, Azericard, Payriff, Epoint, GoldenPay and Yığım. No dependencies.</Description>
